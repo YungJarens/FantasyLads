@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trophy Case · Fantasy HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(255,215,0,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      letter-spacing: 4px; line-height: 1; margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em { color: var(--gold); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    /* SEASON TABS */
+    .season-tabs {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    .tab-btn {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      padding: 0.6rem 1.75rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { color: var(--text); border-color: var(--muted); }
+    .tab-btn.active { background: var(--gold); color: var(--bg); border-color: var(--gold); }
+
+    /* SEASON PANEL */
+    .season-panel { display: none; animation: fadeUp 0.4s ease both; }
+    .season-panel.active { display: block; }
+
+    /* CHAMPION CARD */
+    .champion-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+
+    .champion-card {
+      background: linear-gradient(135deg, rgba(255,215,0,0.08) 0%, var(--surface) 60%);
+      border: 1px solid rgba(255,215,0,0.35);
+      border-radius: 24px;
+      padding: 2.5rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-width: 300px;
+    }
+
+    .champion-card::before {
+      content: '🏆';
+      position: absolute;
+      top: -10px; right: -10px;
+      font-size: 6rem;
+      opacity: 0.06;
+    }
+
+    .champ-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+    }
+
+    .champ-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 24px rgba(255,215,0,0.25);
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+      overflow: hidden;
+    }
+
+    .champ-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .champ-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 0.25rem;
+    }
+
+    .champ-team {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* PODIUM ROW */
+    .podium-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .place-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .place-card.silver { border-color: rgba(192,192,192,0.25); }
+    .place-card.bronze { border-color: rgba(205,127,50,0.25); }
+
+    .place-medal {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      line-height: 1;
+      width: 48px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .place-medal.silver { color: var(--silver); }
+    .place-medal.bronze { color: var(--bronze); }
+
+    .place-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .place-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .place-card.silver .place-avatar { border-color: var(--silver); }
+    .place-card.bronze .place-avatar { border-color: var(--bronze); }
+
+    .place-info { flex: 1; }
+    .place-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 0.25rem; }
+    .place-name { font-weight: 700; font-size: 1rem; }
+    .place-team { font-size: 0.75rem; color: var(--muted); }
+
+    /* AWARDS GRID */
+    .awards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .award-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+
+    .award-icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .award-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); font-family: 'DM Mono', monospace; margin-bottom: 0.5rem; }
+    .award-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .award-stat { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--accent); }
+
+    /* DIVISION WINNERS */
+    .division-section { margin-bottom: 2rem; }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span { color: var(--accent); margin-right: 0.3rem; }
+
+    .division-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .division-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .division-badge {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(232,255,71,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(232,255,71,0.2);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .division-info { flex: 1; }
+    .division-name { font-weight: 700; font-size: 0.95rem; }
+    .division-team { font-size: 0.75rem; color: var(--muted); }
+    .division-record { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+    .div-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .div-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* LOADING */
+    .loading-state { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .loader { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+    .loading-state p { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 1px; }
+
+    /* ALL-TIME WINS TABLE */
+    .alltime-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .at-header {
+      display: grid;
+      grid-template-columns: 40px 1fr 90px 1fr 80px;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      gap: 0.5rem;
+    }
+
+    .at-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 90px 1fr 80px;
+      padding: 0.9rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .at-honors {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 1rem;
+    }
+
+    .at-honor-icon {
+      font-size: 1rem;
+      cursor: default;
+    }
+
+    .at-row:last-child { border-bottom: none; }
+    .at-row:hover { background: var(--surface2); }
+
+    .at-rank { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--muted); }
+    .at-name { font-weight: 600; font-size: 0.9rem; }
+    .at-val { font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+    .at-val.highlight { color: var(--gold); }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .podium-row, .awards-grid, .division-grid { grid-template-columns: 1fr; }
+      .champion-card { padding: 1.5rem; min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Standings</a></li>
+    <li><a href="weekly.html">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html">Managers</a></li>
+    <li><a href="trophies.html" class="active">Trophy Case</a></li>
+    <li><a href="totw.html">Team of the Week</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">2022–2025</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html">Standings</a>
+      <a href="weekly.html">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html">Managers</a>
+      <a href="trophies.html" class="active">Trophy Case</a>
+      <a href="totw.html">Team of the Week</a>
+      <a href="analytics.html">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">🏆 Hall of Fame · 2022–2025</p>
+    <h1>THE <em>TROPHY</em> CASE</h1>
+    <p>Every champion. Every moment. Forever immortalized.</p>
+  </div>
+
+  <div class="season-tabs">
+    <button class="tab-btn active" onclick="showSeason('2025', this)">2025</button>
+    <button class="tab-btn" onclick="showSeason('2024', this)">2024</button>
+    <button class="tab-btn" onclick="showSeason('2023', this)">2023</button>
+    <button class="tab-btn" onclick="showSeason('2022', this)">2022</button>
+    <button class="tab-btn" onclick="showSeason('alltime', this)">All-Time</button>
+  </div>
+
+  <div id="panel-2025" class="season-panel active">
+    <div class="loading-state"><div class="loader"></div><p>Loading 2025 season...</p></div>
+  </div>
+  <div id="panel-2024" class="season-panel">
+    <div class="loading-state"><div class="loader"></div><p>Loading 2024 season...</p></div>
+  </div>
+  <div id="panel-2023" class="season-panel">
+    <div class="loading-state"><div class="loader"></div><p>Loading 2023 season...</p></div>
+  </div>
+  <div id="panel-2022" class="season-panel">
+    <div class="loading-state"><div class="loader"></div><p>Loading 2022 season...</p></div>
+  </div>
+  <div id="panel-alltime" class="season-panel">
+    <div class="loading-state"><div class="loader"></div><p>Building all-time records...</p></div>
+  </div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · Est. 2022
+</footer>
+
+<script>
+  // Hardcoded league IDs per season — update each year when a new season starts
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+  const SEASONS = ['2025', '2024', '2023', '2022'];
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  // Cache for league data per season
+  const cache = {};
+  const loaded = {};
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  function avatarEl(manager, cls, size = 44) {
+    const el = document.createElement('div');
+    el.className = cls;
+    el.style.width = size + 'px';
+    el.style.height = size + 'px';
+    if (manager && manager.avatar) {
+      const img = document.createElement('img');
+      img.src = manager.avatar;
+      img.alt = manager.displayName || '';
+      img.onerror = () => { el.textContent = emojis[(manager.rosterId || 0) % emojis.length]; img.remove(); };
+      el.appendChild(img);
+    } else {
+      el.textContent = manager ? emojis[(manager.rosterId || 0) % emojis.length] : '🏈';
+    }
+    return el;
+  }
+
+  // Auto-discover league ID for seasons not hardcoded above
+  async function findLeagueForSeason(startLeagueId, targetSeason) {
+    let leagueId = startLeagueId;
+    let iterations = 0;
+    while (leagueId && leagueId !== '0' && iterations < 10) {
+      const league = await fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}`);
+      if (league.season === targetSeason) return { leagueId, league };
+      leagueId = league.previous_league_id;
+      iterations++;
+    }
+    return null;
+  }
+
+  async function loadSeasonData(season) {
+    if (cache[season]) return cache[season];
+
+    let leagueId, league;
+
+    // Use hardcoded ID if available, otherwise traverse from earliest known
+    if (LEAGUE_IDS[season]) {
+      leagueId = LEAGUE_IDS[season];
+      league = await fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}`);
+    } else {
+      // Traverse backwards from the oldest known league
+      const oldestKnown = LEAGUE_IDS['2024'];
+      const result = await findLeagueForSeason(oldestKnown, season);
+      if (!result) return null;
+      leagueId = result.leagueId;
+      league = result.league;
+      LEAGUE_IDS[season] = leagueId; // cache for future use
+    }
+
+    if (!leagueId) return null;
+
+    const [rosters, users, brackets] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/winners_bracket`).catch(() => [])
+    ]);
+
+    // Fetch all matchup weeks to compute stats
+    const totalWeeks = league.settings?.leg ?? 14;
+    const weekFetches = [];
+    for (let w = 1; w <= totalWeeks; w++) {
+      weekFetches.push(fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${w}`).catch(() => []));
+    }
+    const allWeekMatchups = await Promise.all(weekFetches);
+
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    const rosterMap = {};
+    rosters.forEach(r => {
+      const user = userMap[r.owner_id] || {};
+      rosterMap[r.roster_id] = {
+        rosterId: r.roster_id,
+        userId: r.owner_id,
+        displayName: user.display_name || 'Unknown',
+        teamName: user.metadata?.team_name || user.display_name || 'Unknown',
+        avatar: getAvatarUrl(user.avatar),
+        wins: r.settings?.wins ?? 0,
+        losses: r.settings?.losses ?? 0,
+        ties: r.settings?.ties ?? 0,
+        pf: parseFloat(((r.settings?.fpts ?? 0) + (r.settings?.fpts_decimal ?? 0) / 100).toFixed(2)),
+        division: r.settings?.division
+      };
+    });
+
+    // Compute biggest blowout from matchups
+    let biggestBlowout = null;
+    let highestScore = null;
+    allWeekMatchups.forEach((weekData, idx) => {
+      const week = idx + 1;
+      const groups = {};
+      weekData.forEach(m => {
+        if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+        groups[m.matchup_id].push(m);
+      });
+      Object.values(groups).forEach(pair => {
+        if (pair.length === 2) {
+          const [a, b] = pair;
+          const margin = Math.abs((a.points ?? 0) - (b.points ?? 0));
+          const winner = (a.points ?? 0) > (b.points ?? 0) ? a : b;
+          const winnerPts = winner.points ?? 0;
+          if (!biggestBlowout || margin > biggestBlowout.margin) {
+            biggestBlowout = { week, margin, rosterId: winner.roster_id, pts: winnerPts };
+          }
+          if (!highestScore || winnerPts > highestScore.pts) {
+            highestScore = { week, pts: winnerPts, rosterId: winner.roster_id };
+          }
+          // Also check loser for highest score
+          const loser = winner === a ? b : a;
+          if ((loser.points ?? 0) > (highestScore?.pts ?? 0)) {
+            highestScore = { week, pts: loser.points, rosterId: loser.roster_id };
+          }
+        }
+      });
+    });
+
+    // Find champion from winners bracket
+    // Sleeper bracket: p=1 means championship game, p=3 means third place game
+    // w = winner roster_id, l = loser roster_id (null if game not yet played)
+    let champion = null, runnerUp = null, thirdPlace = null;
+    if (brackets && brackets.length > 0) {
+      // Championship game: p === 1
+      const champGame = brackets.find(b => b.p === 1);
+      if (champGame && champGame.w) {
+        champion = rosterMap[champGame.w];
+        runnerUp = rosterMap[champGame.l];
+      } else {
+        // Fallback: highest round, first match
+        const maxRound = Math.max(...brackets.map(b => b.r));
+        const finalRoundGames = brackets.filter(b => b.r === maxRound).sort((a, b) => a.m - b.m);
+        const champGame2 = finalRoundGames[0];
+        if (champGame2 && champGame2.w) {
+          champion = rosterMap[champGame2.w];
+          runnerUp = rosterMap[champGame2.l];
+        }
+      }
+      // Third place game: p === 3
+      const thirdGame = brackets.find(b => b.p === 3);
+      if (thirdGame && thirdGame.w) {
+        thirdPlace = rosterMap[thirdGame.w];
+      }
+    }
+
+    // Regular season winner: most wins, then most points
+    const regularSeason = Object.values(rosterMap).sort((a, b) => {
+      if (b.wins !== a.wins) return b.wins - a.wins;
+      return b.pf - a.pf;
+    });
+
+    // Division winners
+    const divisionWinners = {};
+    Object.values(rosterMap).forEach(r => {
+      const div = r.division;
+      if (!div) return;
+      if (!divisionWinners[div] || r.wins > divisionWinners[div].wins || (r.wins === divisionWinners[div].wins && r.pf > divisionWinners[div].pf)) {
+        divisionWinners[div] = r;
+      }
+    });
+
+    // Most points scored
+    const mostPoints = Object.values(rosterMap).sort((a, b) => b.pf - a.pf)[0];
+
+    // Determine if season is complete (bracket has a champion)
+    const seasonComplete = champion !== null;
+
+    const data = {
+      season, league, leagueId, rosterMap,
+      champion: seasonComplete ? champion : null,
+      runnerUp: seasonComplete ? runnerUp : null,
+      thirdPlace: seasonComplete ? thirdPlace : null,
+      regularSeasonWinner: regularSeason[0],
+      mostPoints,
+      biggestBlowout: biggestBlowout ? { ...biggestBlowout, manager: rosterMap[biggestBlowout.rosterId] } : null,
+      highestScore: highestScore ? { ...highestScore, manager: rosterMap[highestScore.rosterId] } : null,
+      divisionWinners,
+      allManagers: regularSeason,
+      seasonComplete
+    };
+
+    cache[season] = data;
+    return data;
+  }
+
+  function renderSeasonPanel(data, panelEl) {
+    if (!data) {
+      panelEl.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--muted)">Could not load data for this season.</div>`;
+      return;
+    }
+    try {
+
+    const { season, champion, runnerUp, thirdPlace, regularSeasonWinner, mostPoints, biggestBlowout, divisionWinners } = data;
+
+    const champAv = document.createElement('div');
+    champAv.className = 'champ-avatar';
+    if (champion?.avatar) {
+      const img = document.createElement('img');
+      img.src = champion.avatar;
+      img.onerror = () => { champAv.textContent = emojis[(champion.rosterId || 0) % emojis.length]; img.remove(); };
+      champAv.appendChild(img);
+    } else {
+      champAv.textContent = champion ? emojis[(champion.rosterId || 0) % emojis.length] : '🏆';
+    }
+
+    panelEl.innerHTML = '';
+
+    // Champion card
+    const champWrap = document.createElement('div');
+    champWrap.className = 'champion-wrap';
+    const champCard = document.createElement('div');
+    champCard.className = 'champion-card';
+    champCard.innerHTML = `<div class="champ-eyebrow">${data.seasonComplete ? '🏆' : '⏳'} ${season} League Champion</div>`;
+    champCard.appendChild(champAv);
+    champCard.innerHTML += `
+      <div class="champ-name">${data.seasonComplete ? (champion?.displayName || 'TBD') : 'SEASON IN PROGRESS'}</div>
+      <div class="champ-team">${data.seasonComplete ? (champion?.teamName !== champion?.displayName ? champion?.teamName || '' : '') : 'Playoffs not yet played'}</div>
+    `;
+    champWrap.appendChild(champCard);
+    panelEl.appendChild(champWrap);
+
+    // Runner-up & 3rd place
+    const podiumRow = document.createElement('div');
+    podiumRow.className = 'podium-row';
+
+    function placeCard(manager, rank, cls, label) {
+      const card = document.createElement('div');
+      card.className = `place-card ${cls}`;
+      const medal = document.createElement('div');
+      medal.className = `place-medal ${cls}`;
+      medal.textContent = rank;
+      const av = avatarEl(manager, 'place-avatar', 44);
+      const info = document.createElement('div');
+      info.className = 'place-info';
+      info.innerHTML = `
+        <div class="place-label">${label}</div>
+        <div class="place-name">${manager?.displayName || 'TBD'}</div>
+        <div class="place-team">${manager?.teamName !== manager?.displayName ? manager?.teamName || '' : ''}</div>
+      `;
+      card.appendChild(medal);
+      card.appendChild(av);
+      card.appendChild(info);
+      return card;
+    }
+
+    podiumRow.appendChild(placeCard(runnerUp, '2ND', 'silver', 'Runner-Up'));
+    podiumRow.appendChild(placeCard(thirdPlace, '3RD', 'bronze', '3rd Place'));
+    panelEl.appendChild(podiumRow);
+
+    // Awards
+    const awardsGrid = document.createElement('div');
+    awardsGrid.className = 'awards-grid';
+
+    function awardCard(icon, label, manager, stat) {
+      const card = document.createElement('div');
+      card.className = 'award-card';
+      card.innerHTML = `
+        <div class="award-icon">${icon}</div>
+        <div class="award-label">${label}</div>
+        <div class="award-name">${manager?.displayName || 'TBD'}</div>
+        <div class="award-stat">${stat || ''}</div>
+      `;
+      return card;
+    }
+
+    const rsRecord = regularSeasonWinner ? `${regularSeasonWinner.wins}-${regularSeasonWinner.losses} · ${(regularSeasonWinner.pf || 0).toFixed(2)} pts` : '—';
+    const mpStat = mostPoints ? `${(mostPoints.pf || 0).toFixed(2)} pts` : '—';
+    const bbStat = biggestBlowout ? `+${biggestBlowout.margin.toFixed(2)} (Wk ${biggestBlowout.week})` : '—';
+    awardsGrid.appendChild(awardCard('📅', 'Regular Season Winner', regularSeasonWinner, rsRecord));
+    awardsGrid.appendChild(awardCard('📈', 'Most Points Scored', mostPoints, mpStat));
+    awardsGrid.appendChild(awardCard('💥', 'Biggest Blowout', biggestBlowout?.manager, bbStat));
+    panelEl.appendChild(awardsGrid);
+
+    // Division Winners
+    const divKeys = Object.keys(divisionWinners).sort();
+    if (divKeys.length > 0) {
+      const divSection = document.createElement('div');
+      divSection.className = 'division-section';
+      divSection.innerHTML = `<h2 class="section-title"><span>#</span>Division Winners</h2>`;
+
+      const divGrid = document.createElement('div');
+      divGrid.className = 'division-grid';
+
+      divKeys.forEach(div => {
+        const manager = divisionWinners[div];
+        const card = document.createElement('div');
+        card.className = 'division-card';
+        const av = avatarEl(manager, 'div-avatar', 36);
+        card.innerHTML = `<div class="division-badge">DIV ${div}</div>`;
+        card.appendChild(av);
+        card.innerHTML += `
+          <div class="division-info">
+            <div class="division-name">${manager.displayName}</div>
+            <div class="division-team">${manager.teamName !== manager.displayName ? manager.teamName : ''}</div>
+            <div class="division-record">${manager.wins}-${manager.losses} · ${manager.pf.toFixed(2)} pts</div>
+          </div>
+        `;
+        divGrid.appendChild(card);
+      });
+
+      divSection.appendChild(divGrid);
+      panelEl.appendChild(divSection);
+    }
+    } catch(err) {
+      console.error('renderSeasonPanel error:', err);
+      panelEl.innerHTML += `<div style="text-align:center;padding:1rem;color:var(--accent2)">⚠️ Render error: ${err.message}</div>`;
+    }
+  }
+
+  function renderAllTime(panelEl) {
+    // Aggregate across all cached seasons
+    const managers = {};
+
+    SEASONS.forEach(season => {
+      const data = cache[season];
+      if (!data) return;
+      Object.values(data.rosterMap).forEach(r => {
+        const key = r.displayName;
+        if (!managers[key]) {
+          managers[key] = {
+            displayName: r.displayName, rosterId: r.rosterId, avatar: r.avatar,
+            wins: 0, losses: 0, pf: 0, seasons: 0,
+            championships: 0,   // 🏆
+            runnerUps: 0,        // 🥈
+            thirdPlaces: 0,      // 🥉
+            regularSeasonWins: 0, // 📅
+            divWest: 0,          // 🇼 Division 1 (West)
+            divEast: 0           // 🇪 Division 2 (East)
+          };
+        }
+        managers[key].wins += r.wins;
+        managers[key].losses += r.losses;
+        managers[key].pf += r.pf;
+        managers[key].seasons++;
+        if (data.champion?.displayName === key)             managers[key].championships++;
+        if (data.runnerUp?.displayName === key)             managers[key].runnerUps++;
+        if (data.thirdPlace?.displayName === key)           managers[key].thirdPlaces++;
+        if (data.regularSeasonWinner?.displayName === key)  managers[key].regularSeasonWins++;
+        // Division winners — track by division number
+        Object.entries(data.divisionWinners || {}).forEach(([div, dw]) => {
+          if (dw.displayName === key) {
+            if (String(div) === '1') managers[key].divWest++;
+            else if (String(div) === '2') managers[key].divEast++;
+          }
+        });
+      });
+    });
+
+    const sorted = Object.values(managers).sort((a, b) =>
+      b.championships !== a.championships ? b.championships - a.championships : b.wins - a.wins
+    );
+
+    panelEl.innerHTML = `<h2 class="section-title" style="margin-bottom:1rem"><span>#</span>All-Time Records</h2>`;
+
+    const table = document.createElement('div');
+    table.className = 'alltime-table';
+    table.innerHTML = `
+      <div class="at-header">
+        <div>#</div>
+        <div>Manager</div>
+        <div>🏆 Rings</div>
+        <div>Honors</div>
+        <div>W-L</div>
+      </div>
+    `;
+
+    sorted.forEach((m, i) => {
+      const row = document.createElement('div');
+      row.className = 'at-row';
+      const av = avatarEl(m, 'div-avatar', 32);
+      row.innerHTML = `<div class="at-rank">${i + 1}</div>`;
+
+      const nameCell = document.createElement('div');
+      nameCell.style.display = 'flex';
+      nameCell.style.alignItems = 'center';
+      nameCell.style.gap = '0.5rem';
+      nameCell.appendChild(av);
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'at-name';
+      nameSpan.textContent = m.displayName;
+      nameCell.appendChild(nameSpan);
+      row.appendChild(nameCell);
+
+      function iconCell(count, activeColor) {
+        const cell = document.createElement('div');
+        cell.className = 'at-icon-cell';
+        if (count > 0) {
+          cell.style.color = activeColor;
+          cell.style.fontWeight = '700';
+          cell.textContent = count > 1 ? `x${count}` : '✓';
+        } else {
+          cell.style.color = 'var(--muted)';
+          cell.textContent = '—';
+        }
+        return cell;
+      }
+
+      // Championships column — same as before
+      const champCell = document.createElement('div');
+      champCell.className = 'at-val highlight';
+      champCell.style.fontFamily = "'Bebas Neue', sans-serif";
+      champCell.style.fontSize = '1.3rem';
+      champCell.style.letterSpacing = '1px';
+      champCell.style.color = m.championships > 0 ? 'var(--gold)' : 'var(--muted)';
+      champCell.textContent = m.championships > 0 ? '🏆'.repeat(m.championships) : '—';
+      row.appendChild(champCell);
+
+      // Honors column — icons only, one per achievement earned, with tooltip
+      const honorsCell = document.createElement('div');
+      honorsCell.className = 'at-honors';
+
+      function addHonor(count, icon, label) {
+        for (let n = 0; n < count; n++) {
+          const span = document.createElement('span');
+          span.className = 'at-honor-icon';
+          span.textContent = icon;
+          span.title = label;
+          honorsCell.appendChild(span);
+        }
+      }
+
+      addHonor(m.runnerUps, '🥈', 'Runner-Up');
+      addHonor(m.thirdPlaces, '🥉', '3rd Place');
+      addHonor(m.regularSeasonWins, '⭐', 'Regular Season Winner');
+      addHonor(m.divWest, '🇼', 'West Division Winner');
+      addHonor(m.divEast, '🇪', 'East Division Winner');
+
+      if (honorsCell.children.length === 0) {
+        honorsCell.innerHTML = '<span style="color:var(--muted);font-size:0.8rem;font-family:monospace">—</span>';
+      }
+      row.appendChild(honorsCell);
+
+      const wlCell = document.createElement('div');
+      wlCell.className = 'at-val';
+      wlCell.textContent = `${m.wins}-${m.losses}`;
+      row.appendChild(wlCell);
+
+      table.appendChild(row);
+    });
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.style.cssText = 'padding:0.75rem 1.5rem;background:var(--surface2);border-top:1px solid var(--border);display:flex;gap:1.5rem;flex-wrap:wrap;font-size:0.7rem;color:var(--muted);font-family:monospace;';
+    legend.innerHTML = `
+      <span>🥈 Runner-Up</span>
+      <span>🥉 3rd Place</span>
+      <span>⭐ Reg. Season Winner</span>
+      <span>🇼 West Division</span>
+      <span>🇪 East Division</span>
+      <span style="margin-left:auto;color:var(--muted)">Hover icons for details</span>
+    `;
+    table.appendChild(legend);
+
+    panelEl.appendChild(table);
+  }
+
+  async function showSeason(season, btn) {
+    // Update tabs
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Show panel
+    document.querySelectorAll('.season-panel').forEach(p => p.classList.remove('active'));
+    const panel = document.getElementById(`panel-${season}`);
+    panel.classList.add('active');
+
+    if (loaded[season]) return;
+    loaded[season] = true;
+
+    if (season === 'alltime') {
+      // Load all seasons first if not cached
+      await Promise.all(SEASONS.map(s => cache[s] ? Promise.resolve() : loadSeasonData(s)));
+      renderAllTime(panel);
+    } else {
+      try {
+        const data = await loadSeasonData(season);
+        renderSeasonPanel(data, panel);
+      } catch (err) {
+        panel.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--accent2)">⚠️ Failed to load ${season} season data.<br><span style="color:var(--muted);font-size:0.8rem">${err.message}</span></div>`;
+      }
+    }
+  }
+
+  // Load current season on page load
+  (async () => {
+    const panel = document.getElementById('panel-2025');
+    loaded['2025'] = true;
+    try {
+      const data = await loadSeasonData('2025');
+      renderSeasonPanel(data, panel);
+    } catch (err) {
+      panel.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--accent2)">⚠️ Failed to load season data.<br><span style="color:var(--muted);font-size:0.8rem">${err.message}</span></div>`;
+    }
+  })();
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Team of the Week · Fantasy HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --win: #47ff8a;
+      --loss: #ff4747;
+      --gold: #ffd700;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.05) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      letter-spacing: 4px; line-height: 1; margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    /* WEEK NAV */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    .week-arrow {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .week-arrow:hover { border-color: var(--accent); color: var(--accent); }
+    .week-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .week-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: center; }
+
+    .week-pill {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.9rem; letter-spacing: 1px;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .week-pill:hover { color: var(--text); border-color: var(--muted); }
+    .week-pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .week-pill.has-data { color: var(--text); }
+
+    /* HERO CARDS — BEST & WORST */
+    .hero-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .hero-card {
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card.best {
+      background: linear-gradient(135deg, rgba(71,255,138,0.08) 0%, var(--surface) 60%);
+      border: 1px solid rgba(71,255,138,0.25);
+    }
+
+    .hero-card.worst {
+      background: linear-gradient(135deg, rgba(255,71,71,0.08) 0%, var(--surface) 60%);
+      border: 1px solid rgba(255,71,71,0.2);
+    }
+
+    .hero-card-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+    }
+
+    .best .hero-card-label { color: var(--win); }
+    .worst .hero-card-label { color: var(--loss); }
+
+    .hero-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: var(--surface2);
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      overflow: hidden;
+    }
+
+    .best .hero-avatar { border: 3px solid var(--win); box-shadow: 0 0 20px rgba(71,255,138,0.2); }
+    .worst .hero-avatar { border: 3px solid var(--loss); box-shadow: 0 0 20px rgba(255,71,71,0.15); }
+    .hero-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .hero-card-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 0.25rem;
+    }
+
+    .best .hero-card-name { color: var(--win); }
+    .worst .hero-card-name { color: var(--loss); }
+
+    .hero-card-team { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+
+    .hero-card-score {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3.5rem;
+      line-height: 1;
+      letter-spacing: 2px;
+    }
+
+    .best .hero-card-score { color: var(--win); }
+    .worst .hero-card-score { color: var(--loss); }
+
+    .hero-card-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; font-family: 'DM Mono', monospace; }
+
+    .hero-card-bg-emoji {
+      position: absolute;
+      bottom: -10px; right: -5px;
+      font-size: 6rem;
+      opacity: 0.06;
+      pointer-events: none;
+    }
+
+    /* FULL RANKINGS TABLE */
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+    }
+
+    .section-title span { color: var(--accent); margin-right: 0.3rem; }
+
+    .rankings-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .rankings-header {
+      display: grid;
+      grid-template-columns: 48px 1fr 100px 100px 100px;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .rankings-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 100px 100px 100px;
+      padding: 0.9rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .rankings-row:last-child { border-bottom: none; }
+    .rankings-row:hover { background: var(--surface2); }
+    .rankings-row.rank-best { border-left: 3px solid var(--win); }
+    .rankings-row.rank-worst { border-left: 3px solid var(--loss); }
+
+    .rank-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: var(--muted);
+    }
+
+    .rankings-row.rank-best .rank-num { color: var(--win); }
+    .rankings-row.rank-worst .rank-num { color: var(--loss); }
+
+    .row-manager { display: flex; align-items: center; gap: 0.75rem; }
+
+    .row-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .row-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .rankings-row.rank-best .row-avatar { border-color: var(--win); }
+    .rankings-row.rank-worst .row-avatar { border-color: var(--loss); }
+
+    .row-name { font-weight: 600; font-size: 0.9rem; }
+    .row-val { font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+    .row-result { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .row-result.W { background: rgba(71,255,138,0.15); color: var(--win); }
+    .row-result.L { background: rgba(255,71,71,0.15); color: var(--loss); }
+
+    /* SEASON LEADERBOARD */
+    .season-section { margin-bottom: 2rem; }
+
+    .season-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .season-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .season-card-header {
+      padding: 1rem 1.25rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+    }
+
+    .season-card-header span { margin-right: 0.4rem; }
+
+    .season-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .season-row:last-child { border-bottom: none; }
+
+    .season-row-left { display: flex; align-items: center; gap: 0.5rem; }
+
+    .season-rank {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      color: var(--muted);
+      width: 24px;
+    }
+
+    .season-name { font-weight: 600; }
+    .season-count { font-family: 'DM Mono', monospace; font-size: 0.8rem; }
+    .season-count.best-color { color: var(--win); }
+    .season-count.worst-color { color: var(--loss); }
+
+    /* CHART */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .chart-title span { color: var(--accent); margin-right: 0.3rem; }
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* LOADING */
+    .loading-state { text-align: center; padding: 4rem; color: var(--muted); }
+    .loader { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+    .loading-state p { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 1px; }
+
+    .empty-state { text-align: center; padding: 4rem; color: var(--muted); font-size: 0.9rem; }
+    .empty-state span { display: block; font-size: 2rem; margin-bottom: 1rem; }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem; letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 1rem;
+    }
+
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .hero-cards { grid-template-columns: 1fr; }
+      .season-grid { grid-template-columns: 1fr; }
+      .rankings-header, .rankings-row { grid-template-columns: 40px 1fr 80px 80px; }
+      .rankings-header .h-result, .rankings-row .row-result-cell { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Standings</a></li>
+    <li><a href="weekly.html">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html">Managers</a></li>
+    <li><a href="trophies.html">Trophy Case</a></li>
+    <li><a href="totw.html" class="active">Team of the Week</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">2025 SEASON</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html">Standings</a>
+      <a href="weekly.html">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html">Managers</a>
+      <a href="trophies.html">Trophy Case</a>
+      <a href="totw.html" class="active">Team of the Week</a>
+      <a href="analytics.html">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">⭐ Updated Every Monday</p>
+    <h1>TEAM OF <em>THE WEEK</em></h1>
+    <p>The best and worst of each week. Glory and shame, immortalized.</p>
+  </div>
+
+  <div class="week-nav">
+    <button class="week-arrow" id="prevBtn" onclick="changeWeek(-1)">←</button>
+    <div class="week-pills" id="weekPills"></div>
+    <button class="week-arrow" id="nextBtn" onclick="changeWeek(1)">→</button>
+  </div>
+
+  <div id="weekContent">
+    <div class="loading-state">
+      <div class="loader"></div>
+      <p>Loading week data...</p>
+    </div>
+  </div>
+
+  <div id="seasonSection" style="display:none">
+    <div class="season-section">
+      <h2 class="section-title"><span>#</span>Season Leaderboards</h2>
+      <div class="season-grid">
+        <div class="season-card">
+          <div class="season-card-header"><span>⭐</span>Most TOTW Awards</div>
+          <div id="bestLeaderboard"></div>
+        </div>
+        <div class="season-card">
+          <div class="season-card-header"><span>💀</span>Most Wooden Spoons</div>
+          <div id="worstLeaderboard"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title"><span>#</span>Season High Score By Week</div>
+      <div class="chart-wrap"><canvas id="seasonChart"></canvas></div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · Refreshes every Monday
+</footer>
+
+<script>
+  const ROOT_LEAGUE_ID = '1180381287712473088';
+  let LEAGUE_ID = ROOT_LEAGUE_ID;
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  let allRosters = {};
+  let totalWeeks = 0;
+  let currentWeek = 1;
+  let matchupCache = {};
+  let seasonData = []; // [{week, best, worst, allScores}]
+  let seasonChart = null;
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+
+  // Known league IDs per season
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+
+  async function findLeagueId(startId, targetSeason) {
+    const knownId = LEAGUE_IDS[targetSeason];
+    if (knownId) {
+      const league = await fetchJSON(`https://api.sleeper.app/v1/league/${knownId}`);
+      return { leagueId: knownId, league };
+    }
+    return null;
+  }
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  function makeAvatar(roster, cls, size) {
+    const el = document.createElement('div');
+    el.className = cls;
+    if (size) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
+    if (roster?.avatar) {
+      const img = document.createElement('img');
+      img.src = roster.avatar;
+      img.alt = roster.displayName;
+      img.onerror = () => { el.textContent = emojis[(roster.rosterId || 0) % emojis.length]; img.remove(); };
+      el.appendChild(img);
+    } else {
+      el.textContent = emojis[(roster?.rosterId || 0) % emojis.length];
+    }
+    return el;
+  }
+
+  async function init() {
+    const found = await findLeagueId(ROOT_LEAGUE_ID, SEASON);
+    if (!found) throw new Error(`Could not find ${SEASON} league`);
+    LEAGUE_ID = found.leagueId;
+    const league = found.league;
+
+    const [rosters, users] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/users`)
+    ]);
+
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    rosters.forEach(r => {
+      const user = userMap[r.owner_id] || {};
+      allRosters[r.roster_id] = {
+        rosterId: r.roster_id,
+        displayName: user.display_name || 'Unknown',
+        teamName: user.metadata?.team_name || user.display_name || 'Unknown',
+        avatar: getAvatarUrl(user.avatar)
+      };
+    });
+
+    totalWeeks = league.settings?.leg ?? 14;
+    currentWeek = Math.max(1, totalWeeks);
+
+    buildWeekPills();
+
+    // Load all played weeks for season stats
+    await loadAllWeeks();
+    renderSeasonSection();
+
+    // Show current week
+    renderWeek(currentWeek);
+  }
+
+  async function loadAllWeeks() {
+    const fetches = [];
+    for (let w = 1; w <= totalWeeks; w++) {
+      fetches.push(
+        fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/${w}`)
+          .then(d => ({ week: w, data: d }))
+          .catch(() => null)
+      );
+    }
+    const results = await Promise.all(fetches);
+    results.forEach(r => {
+      if (!r) return;
+      matchupCache[r.week] = r.data;
+      const processed = processWeek(r.week, r.data);
+      if (processed) seasonData.push(processed);
+    });
+    seasonData.sort((a, b) => a.week - b.week);
+  }
+
+  function processWeek(week, data) {
+    const hasScores = data.some(m => m.points && m.points > 0);
+    if (!hasScores) return null;
+
+    // Get all scores with matchup results
+    const groups = {};
+    data.forEach(m => {
+      if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+      groups[m.matchup_id].push(m);
+    });
+
+    const scored = [];
+    Object.values(groups).forEach(pair => {
+      if (pair.length !== 2) return;
+      const [a, b] = pair;
+      const aWon = (a.points ?? 0) >= (b.points ?? 0);
+      scored.push({ rosterId: a.roster_id, pts: a.points ?? 0, won: aWon });
+      scored.push({ rosterId: b.roster_id, pts: b.points ?? 0, won: !aWon });
+    });
+
+    if (scored.length === 0) return null;
+
+    scored.sort((a, b) => b.pts - a.pts);
+
+    return {
+      week,
+      allScores: scored,
+      best: { ...scored[0], roster: allRosters[scored[0].rosterId] },
+      worst: { ...scored[scored.length - 1], roster: allRosters[scored[scored.length - 1].rosterId] }
+    };
+  }
+
+  function buildWeekPills() {
+    const pillsEl = document.getElementById('weekPills');
+    pillsEl.innerHTML = '';
+    for (let w = 1; w <= totalWeeks; w++) {
+      const pill = document.createElement('button');
+      pill.className = 'week-pill has-data';
+      pill.textContent = `WK ${w}`;
+      pill.dataset.week = w;
+      pill.addEventListener('click', () => { currentWeek = w; updateActivePill(); updateArrows(); renderWeek(w); });
+      pillsEl.appendChild(pill);
+    }
+    updateActivePill();
+    updateArrows();
+  }
+
+  function updateActivePill() {
+    document.querySelectorAll('.week-pill').forEach(p => p.classList.toggle('active', parseInt(p.dataset.week) === currentWeek));
+  }
+
+  function updateArrows() {
+    document.getElementById('prevBtn').disabled = currentWeek <= 1;
+    document.getElementById('nextBtn').disabled = currentWeek >= totalWeeks;
+  }
+
+  function changeWeek(dir) {
+    const next = currentWeek + dir;
+    if (next < 1 || next > totalWeeks) return;
+    currentWeek = next;
+    updateActivePill();
+    updateArrows();
+    renderWeek(currentWeek);
+  }
+
+  function renderWeek(week) {
+    const content = document.getElementById('weekContent');
+    const weekData = seasonData.find(d => d.week === week);
+
+    if (!weekData) {
+      content.innerHTML = `<div class="empty-state"><span>📅</span>Week ${week} hasn't been played yet. Check back Monday!</div>`;
+      return;
+    }
+
+    content.innerHTML = '';
+
+    // HERO CARDS
+    const heroCards = document.createElement('div');
+    heroCards.className = 'hero-cards';
+
+    function heroCard(data, type) {
+      const card = document.createElement('div');
+      card.className = `hero-card ${type}`;
+
+      const label = type === 'best' ? '⭐ Team of the Week' : '💀 Wooden Spoon Award';
+      const bgEmoji = type === 'best' ? '🏆' : '🪣';
+      const sub = type === 'best'
+        ? `Highest scorer · Week ${week}`
+        : `Lowest scorer · Week ${week}`;
+
+      card.innerHTML = `<div class="hero-card-label">${label}</div>`;
+      const av = makeAvatar(data.roster, 'hero-avatar', 72);
+      card.appendChild(av);
+      card.innerHTML += `
+        <div class="hero-card-name">${data.roster?.displayName || 'Unknown'}</div>
+        <div class="hero-card-team">${data.roster?.teamName !== data.roster?.displayName ? data.roster?.teamName || '' : ''}</div>
+        <div class="hero-card-score">${data.pts.toFixed(2)}</div>
+        <div class="hero-card-sub">${sub}</div>
+        <div class="hero-card-bg-emoji">${bgEmoji}</div>
+      `;
+      return card;
+    }
+
+    heroCards.appendChild(heroCard(weekData.best, 'best'));
+    heroCards.appendChild(heroCard(weekData.worst, 'worst'));
+    content.appendChild(heroCards);
+
+    // FULL RANKINGS
+    const section = document.createElement('div');
+    section.innerHTML = `<h2 class="section-title" style="margin-bottom:1rem"><span>#</span>Week ${week} Full Rankings</h2>`;
+
+    const table = document.createElement('div');
+    table.className = 'rankings-table';
+    table.innerHTML = `
+      <div class="rankings-header">
+        <div>#</div>
+        <div>Manager</div>
+        <div>Score</div>
+        <div>Result</div>
+        <div class="h-result">+/- Avg</div>
+      </div>
+    `;
+
+    const avgScore = weekData.allScores.reduce((s, m) => s + m.pts, 0) / weekData.allScores.length;
+
+    weekData.allScores.forEach((entry, i) => {
+      const roster = allRosters[entry.rosterId];
+      const rank = i + 1;
+      const isBest = rank === 1;
+      const isWorst = rank === weekData.allScores.length;
+      const diff = (entry.pts - avgScore).toFixed(1);
+      const diffStr = diff > 0 ? `+${diff}` : diff;
+
+      const row = document.createElement('div');
+      row.className = `rankings-row ${isBest ? 'rank-best' : isWorst ? 'rank-worst' : ''}`;
+
+      const av = makeAvatar(roster, 'row-avatar', 34);
+      row.innerHTML = `<div class="rank-num">${rank}</div>`;
+      const mgr = document.createElement('div');
+      mgr.className = 'row-manager';
+      mgr.appendChild(av);
+      mgr.innerHTML += `<span class="row-name">${roster?.displayName || 'Unknown'}</span>`;
+      row.appendChild(mgr);
+      row.innerHTML += `
+        <div class="row-val">${entry.pts.toFixed(2)}</div>
+        <div class="row-result-cell"><span class="row-result ${entry.won ? 'W' : 'L'}">${entry.won ? 'WIN' : 'LOSS'}</span></div>
+        <div class="row-val" style="color:${parseFloat(diff) >= 0 ? 'var(--win)' : 'var(--loss)'}">${diffStr}</div>
+      `;
+      table.appendChild(row);
+    });
+
+    section.appendChild(table);
+    content.appendChild(section);
+  }
+
+  function renderSeasonSection() {
+    if (seasonData.length === 0) return;
+    document.getElementById('seasonSection').style.display = 'block';
+
+    // Count awards per manager
+    const bestCounts = {};
+    const worstCounts = {};
+
+    seasonData.forEach(d => {
+      const bName = d.best.roster?.displayName || 'Unknown';
+      const wName = d.worst.roster?.displayName || 'Unknown';
+      bestCounts[bName] = (bestCounts[bName] || 0) + 1;
+      worstCounts[wName] = (worstCounts[wName] || 0) + 1;
+    });
+
+    // Best leaderboard
+    const bestSorted = Object.entries(bestCounts).sort((a, b) => b[1] - a[1]);
+    const bestEl = document.getElementById('bestLeaderboard');
+    bestEl.innerHTML = '';
+    bestSorted.forEach(([name, count], i) => {
+      const roster = Object.values(allRosters).find(r => r.displayName === name);
+      const row = document.createElement('div');
+      row.className = 'season-row';
+      const av = makeAvatar(roster, 'row-avatar', 28);
+      row.innerHTML = `<div class="season-row-left"><span class="season-rank">${i + 1}</span>`;
+      row.querySelector('.season-row-left').appendChild(av);
+      row.querySelector('.season-row-left').innerHTML += `<span class="season-name">${name}</span></div>`;
+      row.innerHTML += `<span class="season-count best-color">${count} week${count !== 1 ? 's' : ''} ⭐</span>`;
+      bestEl.appendChild(row);
+    });
+
+    // Worst leaderboard
+    const worstSorted = Object.entries(worstCounts).sort((a, b) => b[1] - a[1]);
+    const worstEl = document.getElementById('worstLeaderboard');
+    worstEl.innerHTML = '';
+    worstSorted.forEach(([name, count], i) => {
+      const roster = Object.values(allRosters).find(r => r.displayName === name);
+      const row = document.createElement('div');
+      row.className = 'season-row';
+      const av = makeAvatar(roster, 'row-avatar', 28);
+      row.innerHTML = `<div class="season-row-left"><span class="season-rank">${i + 1}</span>`;
+      row.querySelector('.season-row-left').appendChild(av);
+      row.querySelector('.season-row-left').innerHTML += `<span class="season-name">${name}</span></div>`;
+      row.innerHTML += `<span class="season-count worst-color">${count} week${count !== 1 ? 's' : ''} 💀</span>`;
+      worstEl.appendChild(row);
+    });
+
+    // Season chart — high score per week
+    setTimeout(() => {
+      const ctx = document.getElementById('seasonChart');
+      if (!ctx) return;
+      if (seasonChart) { seasonChart.destroy(); }
+
+      seasonChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: seasonData.map(d => `Wk ${d.week}`),
+          datasets: [
+            {
+              label: 'High Score',
+              data: seasonData.map(d => d.best.pts),
+              backgroundColor: 'rgba(71,255,138,0.5)',
+              borderColor: 'rgba(71,255,138,0.9)',
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: 'Low Score',
+              data: seasonData.map(d => d.worst.pts),
+              backgroundColor: 'rgba(255,71,71,0.35)',
+              borderColor: 'rgba(255,71,71,0.7)',
+              borderWidth: 1,
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              labels: { color: '#5a6a7a', font: { family: 'DM Mono', size: 11 } }
+            },
+            tooltip: {
+              backgroundColor: '#161c23',
+              borderColor: '#1e2730',
+              borderWidth: 1,
+              titleColor: '#e8ff47',
+              bodyColor: '#f0f4f8',
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)} pts`
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(30,39,48,0.8)' }, ticks: { color: '#5a6a7a', font: { family: 'DM Mono', size: 10 } } },
+            y: { grid: { color: 'rgba(30,39,48,0.8)' }, ticks: { color: '#5a6a7a', font: { family: 'DM Mono', size: 10 } } }
+          }
+        }
+      });
+    }, 100);
+  }
+
+  init().catch(err => {
+    document.getElementById('weekContent').innerHTML = `<div class="loading-state" style="color:var(--accent2)">⚠️ Failed to load data.<br><span style="font-size:0.8rem">${err.message}</span></div>`;
+  });
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>

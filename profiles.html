@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manager Profiles · Fantasy HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --accent3: #47b8ff;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --win: #47ff8a;
+      --loss: #ff4747;
+      --gold: #ffd700;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.05) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      letter-spacing: 4px; line-height: 1; margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    /* MANAGER GRID */
+    .manager-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    .manager-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .manager-pill:hover { border-color: var(--muted); transform: translateY(-2px); }
+    .manager-pill.active { border-color: var(--accent); background: rgba(232,255,71,0.05); }
+
+    .pill-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      margin: 0 auto 0.5rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      overflow: hidden;
+    }
+
+    .manager-pill.active .pill-avatar { border-color: var(--accent); }
+    .pill-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pill-name { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* PROFILE PANEL */
+    #profilePanel { animation: fadeUp 0.4s ease both; }
+
+    .profile-header {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .profile-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 20px rgba(232,255,71,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-info h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-team { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+    .profile-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .badge.champ { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+    .badge.regular { background: rgba(71,184,255,0.15); color: var(--accent3); border: 1px solid rgba(71,184,255,0.3); }
+    .badge.top3 { background: rgba(232,255,71,0.1); color: var(--accent); border: 1px solid rgba(232,255,71,0.2); }
+
+    .profile-record {
+      text-align: right;
+    }
+
+    .record-big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      letter-spacing: 2px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .record-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+    /* BIO */
+    .bio-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    .bio-card strong { color: var(--text); font-style: normal; }
+
+    /* STAT STRIP */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 1px;
+      color: var(--accent);
+      display: block;
+    }
+
+    .stat-lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 0.25rem;
+    }
+
+    /* CHART */
+    .chart-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
+      color: var(--muted);
+    }
+
+    .chart-title span { color: var(--accent); margin-right: 0.3rem; }
+
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* MATCHUP HISTORY */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .results-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+
+    .results-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.85rem;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-opp { color: var(--text); font-weight: 500; }
+    .result-pts { font-family: 'DM Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+    .result-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+    .result-badge.W { background: rgba(71,255,138,0.15); color: var(--win); }
+    .result-badge.L { background: rgba(255,71,71,0.15); color: var(--loss); }
+
+    /* LOADING */
+    .loading-state { text-align: center; padding: 4rem; color: var(--muted); }
+    .loader { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+    .loading-state p { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 1px; }
+
+    .empty-state { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.9rem; }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem; letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 700px) {
+      .manager-grid { grid-template-columns: repeat(2, 1fr); }
+      .stat-strip { grid-template-columns: repeat(2, 1fr); }
+      .results-grid { grid-template-columns: 1fr; }
+      .profile-header { grid-template-columns: auto 1fr; }
+      .profile-record { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Standings</a></li>
+    <li><a href="weekly.html">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html" class="active">Managers</a></li>
+    <li><a href="trophies.html">Trophy Case</a></li>
+    <li><a href="totw.html">Team of the Week</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">ALL-TIME</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html">Standings</a>
+      <a href="weekly.html">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html" class="active">Managers</a>
+      <a href="trophies.html">Trophy Case</a>
+      <a href="totw.html">Team of the Week</a>
+      <a href="analytics.html">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">👤 Individual Dashboards</p>
+    <h1>MANAGER <em>PROFILES</em></h1>
+    <p>Click a manager to see their full breakdown.</p>
+  </div>
+
+  <div class="manager-grid" id="managerGrid">
+    <div class="loading-state" style="grid-column:1/-1">
+      <div class="loader"></div>
+      <p>Loading managers...</p>
+    </div>
+  </div>
+
+  <div id="profilePanel"></div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · Data refreshes every Monday
+</footer>
+
+<script>
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+  const SEASONS = ['2025', '2024', '2023', '2022'];
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  // { season: { rosters: [], matchups: {week: []} } }
+  const seasonCache = {};
+
+  // Canonical manager list keyed by displayName (from 2025 season)
+  let allManagers = [];
+  let currentManagerName = null;
+  let currentSeason = 'alltime';
+  let currentChart = null;
+
+  const BIOS = {
+    // 'DisplayName': 'Your funny bio here...',
+  };
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  function avatarEl(manager, cls, size) {
+    const el = document.createElement('div');
+    el.className = cls;
+    if (size) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
+    if (manager?.avatar) {
+      const img = document.createElement('img');
+      img.src = manager.avatar;
+      img.alt = manager.displayName;
+      img.onerror = () => { el.textContent = emojis[(manager.rosterId || 0) % emojis.length]; img.remove(); };
+      el.appendChild(img);
+    } else {
+      el.textContent = emojis[(manager?.rosterId || 0) % emojis.length];
+    }
+    return el;
+  }
+
+  async function loadSeason(season) {
+    if (seasonCache[season]) return seasonCache[season];
+    const leagueId = LEAGUE_IDS[season];
+    const [league, rosters, users] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+    ]);
+
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    const rosterList = rosters.map(r => {
+      const user = userMap[r.owner_id] || {};
+      return {
+        rosterId: r.roster_id,
+        displayName: user.display_name || 'Unknown',
+        teamName: user.metadata?.team_name || user.display_name || 'Unknown',
+        avatar: getAvatarUrl(user.avatar),
+        wins: r.settings?.wins ?? 0,
+        losses: r.settings?.losses ?? 0,
+        ties: r.settings?.ties ?? 0,
+        pf: parseFloat(((r.settings?.fpts ?? 0) + (r.settings?.fpts_decimal ?? 0) / 100).toFixed(2)),
+        pa: parseFloat(((r.settings?.fpts_against ?? 0) + (r.settings?.fpts_against_decimal ?? 0) / 100).toFixed(2)),
+        division: r.settings?.division
+      };
+    });
+
+    const leg = league.settings?.leg ?? 0;
+    const playoffStart = league.settings?.playoff_week_start ?? 15;
+    const totalWeeks = leg > 0 ? leg : (playoffStart > 1 ? playoffStart - 1 : 14);
+
+    const weekFetches = [];
+    for (let w = 1; w <= totalWeeks; w++) {
+      weekFetches.push(
+        fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${w}`)
+          .then(d => ({ week: w, data: d }))
+          .catch(() => null)
+      );
+    }
+    const results = await Promise.all(weekFetches);
+    const matchups = {};
+    results.forEach(r => {
+      if (r && r.data && r.data.some(m => (m.points ?? 0) > 0)) {
+        matchups[r.week] = r.data;
+      }
+    });
+
+    seasonCache[season] = { rosters: rosterList, matchups };
+    return seasonCache[season];
+  }
+
+  async function init() {
+    // Load all seasons in parallel
+    await Promise.all(SEASONS.map(s => loadSeason(s)));
+
+    // Build canonical manager list from 2025 season
+    allManagers = seasonCache['2025'].rosters.slice().sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+    renderManagerGrid();
+  }
+
+  function renderManagerGrid() {
+    const grid = document.getElementById('managerGrid');
+    grid.innerHTML = '';
+    allManagers.forEach(m => {
+      const pill = document.createElement('div');
+      pill.className = 'manager-pill';
+      pill.dataset.name = m.displayName;
+      const av = avatarEl(m, 'pill-avatar', 44);
+      pill.appendChild(av);
+      pill.innerHTML += `<div class="pill-name">${m.displayName}</div>`;
+      pill.addEventListener('click', () => selectManager(m.displayName));
+      grid.appendChild(pill);
+    });
+    if (allManagers.length > 0) selectManager(allManagers[0].displayName);
+  }
+
+  function selectManager(displayName) {
+    document.querySelectorAll('.manager-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.name === displayName);
+    });
+    currentManagerName = displayName;
+    renderProfile(displayName, currentSeason);
+  }
+
+  // Get matchups for a manager across a season (or all seasons)
+  function getMatchups(displayName, season) {
+    const seasons = season === 'alltime' ? SEASONS : [season];
+    const history = [];
+
+    seasons.forEach(s => {
+      const data = seasonCache[s];
+      if (!data) return;
+      const rosterMap = {};
+      data.rosters.forEach(r => rosterMap[r.rosterId] = r);
+      const myRoster = data.rosters.find(r => r.displayName === displayName);
+      if (!myRoster) return;
+
+      Object.entries(data.matchups).forEach(([week, weekData]) => {
+        const groups = {};
+        weekData.forEach(m => {
+          if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+          groups[m.matchup_id].push(m);
+        });
+        Object.values(groups).forEach(pair => {
+          if (pair.length !== 2) return;
+          const mine = pair.find(p => p.roster_id === myRoster.rosterId);
+          const opp = pair.find(p => p.roster_id !== myRoster.rosterId);
+          if (!mine || !opp) return;
+          const oppRoster = rosterMap[opp.roster_id];
+          history.push({
+            season: s,
+            week: parseInt(week),
+            myPts: mine.points ?? 0,
+            oppPts: opp.points ?? 0,
+            oppName: oppRoster?.displayName || 'Unknown',
+            win: (mine.points ?? 0) > (opp.points ?? 0)
+          });
+        });
+      });
+    });
+
+    return history.sort((a, b) => b.season - a.season || b.week - a.week);
+  }
+
+  // Get aggregated roster stats for a manager across a season (or all seasons)
+  function getRosterStats(displayName, season) {
+    const seasons = season === 'alltime' ? SEASONS : [season];
+    let wins = 0, losses = 0, ties = 0, pf = 0, pa = 0;
+    let division = null, teamName = displayName, avatar = null, rosterId = 0;
+
+    seasons.forEach(s => {
+      const data = seasonCache[s];
+      if (!data) return;
+      const r = data.rosters.find(r => r.displayName === displayName);
+      if (!r) return;
+      wins += r.wins; losses += r.losses; ties += r.ties;
+      pf += r.pf; pa += r.pa;
+      // Use 2025 values as canonical
+      if (s === '2025') {
+        division = r.division; teamName = r.teamName;
+        avatar = r.avatar; rosterId = r.rosterId;
+      }
+    });
+
+    return { wins, losses, ties, pf, pa, division, teamName, avatar, rosterId, displayName };
+  }
+
+  function renderProfile(displayName, season) {
+    currentSeason = season;
+    const panel = document.getElementById('profilePanel');
+    panel.innerHTML = '';
+
+    const manager = getRosterStats(displayName, season);
+    const matchups = getMatchups(displayName, season);
+    const isAllTime = season === 'alltime';
+
+    const totalPts = matchups.reduce((s, m) => s + m.myPts, 0);
+    const avgPts = matchups.length ? (totalPts / matchups.length).toFixed(1) : '—';
+    const bestScore = matchups.length ? Math.max(...matchups.map(m => m.myPts)).toFixed(2) : '—';
+    const worstScore = matchups.length ? Math.min(...matchups.map(m => m.myPts)).toFixed(2) : '—';
+    const wins = matchups.filter(m => m.win).sort((a, b) => (b.myPts - b.oppPts) - (a.myPts - a.oppPts));
+    const losses = matchups.filter(m => !m.win).sort((a, b) => (b.oppPts - b.myPts) - (a.oppPts - a.myPts));
+    const bio = BIOS[displayName] || null;
+
+    // ── HEADER ──
+    const header = document.createElement('div');
+    header.className = 'profile-header';
+    const av = avatarEl(manager, 'profile-avatar', 80);
+    const info = document.createElement('div');
+    info.className = 'profile-info';
+    info.innerHTML = `
+      <h2>${displayName}</h2>
+      <div class="profile-team">${manager.teamName !== displayName ? manager.teamName : 'No team name set'}</div>
+      <div class="profile-badges">
+        ${manager.division ? `<span class="badge regular">${manager.division == 1 ? 'West' : manager.division == 2 ? 'East' : 'Division ' + manager.division}</span>` : ''}
+      </div>
+    `;
+
+    // Season dropdown
+    const dropWrap = document.createElement('div');
+    dropWrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;';
+    const recordEl = document.createElement('div');
+    recordEl.className = 'profile-record';
+    recordEl.innerHTML = `
+      <div class="record-big">${manager.wins}-${manager.losses}</div>
+      <div class="record-label">${isAllTime ? 'All-Time Record' : season + ' Record'}</div>
+    `;
+
+    const select = document.createElement('select');
+    select.style.cssText = 'background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.75rem;border-radius:8px;font-family:"DM Sans",sans-serif;font-size:0.85rem;cursor:pointer;';
+    const allTimeOpt = new Option('⭐ All-Time', 'alltime');
+    select.appendChild(allTimeOpt);
+    SEASONS.forEach(s => {
+      const opt = new Option(s + ' Season', s);
+      select.appendChild(opt);
+    });
+    select.value = season;
+    select.addEventListener('change', () => renderProfile(displayName, select.value));
+
+    dropWrap.appendChild(recordEl);
+    dropWrap.appendChild(select);
+
+    header.appendChild(av);
+    header.appendChild(info);
+    header.appendChild(dropWrap);
+    panel.appendChild(header);
+
+    // ── BIO ──
+    const bioCard = document.createElement('div');
+    bioCard.className = 'bio-card';
+    bioCard.innerHTML = bio
+      ? bio
+      : `<strong>Bio coming soon.</strong> Check back after we roast ${displayName} properly. 🔥`;
+    panel.appendChild(bioCard);
+
+    // ── STAT STRIP ──
+    const strip = document.createElement('div');
+    strip.className = 'stat-strip';
+    strip.innerHTML = `
+      <div class="stat-card"><span class="stat-val">${avgPts}</span><span class="stat-lbl">Avg Pts/Week</span></div>
+      <div class="stat-card"><span class="stat-val">${bestScore}</span><span class="stat-lbl">Best Score</span></div>
+      <div class="stat-card"><span class="stat-val">${worstScore}</span><span class="stat-lbl">Worst Score</span></div>
+      <div class="stat-card"><span class="stat-val">${manager.pf.toFixed(1)}</span><span class="stat-lbl">Total PF</span></div>
+    `;
+    panel.appendChild(strip);
+
+    // ── CHART ──
+    const chartCard = document.createElement('div');
+    chartCard.className = 'chart-card';
+    // For all-time, show bars grouped by season; for single season show line
+    chartCard.innerHTML = `
+      <div class="chart-title"><span>#</span>${isAllTime ? 'All-Time Points Per Game' : season + ' Points Per Week'}</div>
+      <div class="chart-wrap"><canvas id="ptsChart"></canvas></div>
+    `;
+    panel.appendChild(chartCard);
+
+    const chartMatchups = [...matchups].sort((a, b) => b.season - a.season || b.week - a.week).reverse();
+
+    setTimeout(() => {
+      if (currentChart) { currentChart.destroy(); currentChart = null; }
+      const ctx = document.getElementById('ptsChart');
+      if (!ctx || chartMatchups.length === 0) return;
+
+      currentChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartMatchups.map(m => isAllTime ? `${m.season} W${m.week}` : `Wk ${m.week}`),
+          datasets: [{
+            label: 'Points',
+            data: chartMatchups.map(m => m.myPts),
+            borderColor: '#e8ff47',
+            backgroundColor: 'rgba(232,255,71,0.08)',
+            borderWidth: 2,
+            pointBackgroundColor: chartMatchups.map(m => m.win ? '#47ff8a' : '#ff4747'),
+            pointBorderColor: 'transparent',
+            pointRadius: 4,
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#161c23',
+              borderColor: '#1e2730',
+              borderWidth: 1,
+              titleColor: '#e8ff47',
+              bodyColor: '#f0f4f8',
+              callbacks: {
+                label: c => ` ${c.parsed.y.toFixed(2)} pts · ${chartMatchups[c.dataIndex].win ? '✅' : '❌'} vs ${chartMatchups[c.dataIndex].oppName}`
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(30,39,48,0.8)' }, ticks: { color: '#5a6a7a', font: { family: 'DM Mono', size: 9 }, maxRotation: 45 } },
+            y: { grid: { color: 'rgba(30,39,48,0.8)' }, ticks: { color: '#5a6a7a', font: { family: 'DM Mono', size: 10 } } }
+          }
+        }
+      });
+    }, 50);
+
+    // ── BIGGEST WINS / LOSSES ──
+    const resultsGrid = document.createElement('div');
+    resultsGrid.className = 'results-grid';
+
+    function resultsList(title, games, isWin) {
+      const card = document.createElement('div');
+      card.className = 'results-card';
+      card.innerHTML = `<div class="results-title">${title}</div>`;
+      if (games.length === 0) {
+        card.innerHTML += `<div style="color:var(--muted);font-size:0.85rem">None yet</div>`;
+      } else {
+        games.slice(0, 5).forEach(g => {
+          const row = document.createElement('div');
+          row.className = 'result-row';
+          row.innerHTML = `
+            <div>
+              <div class="result-opp">${g.oppName}</div>
+              <div class="result-pts">${isAllTime ? g.season + ' · ' : ''}Wk ${g.week} · ${g.myPts.toFixed(2)} – ${g.oppPts.toFixed(2)}</div>
+            </div>
+            <div><span class="result-badge ${isWin ? 'W' : 'L'}">${isWin ? '+' : ''}${Math.abs(g.myPts - g.oppPts).toFixed(2)}</span></div>
+          `;
+          card.appendChild(row);
+        });
+      }
+      return card;
+    }
+
+    resultsGrid.appendChild(resultsList('💪 Biggest Wins', wins, true));
+    resultsGrid.appendChild(resultsList('😬 Worst Losses', losses, false));
+    panel.appendChild(resultsGrid);
+
+    // ── SCHEDULE ──
+    const schedCard = document.createElement('div');
+    schedCard.className = 'chart-card';
+    schedCard.innerHTML = `<div class="chart-title"><span>#</span>${isAllTime ? 'All-Time Game Log' : season + ' Schedule'}</div>`;
+
+    if (matchups.length === 0) {
+      schedCard.innerHTML += `<div class="empty-state">No matchup data yet.</div>`;
+    } else {
+      const list = document.createElement('div');
+      matchups.forEach(m => {
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        row.innerHTML = `
+          <div style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);width:${isAllTime ? '72px' : '48px'}">${isAllTime ? m.season + ' W' + m.week : 'WK ' + m.week}</div>
+          <div class="result-opp" style="flex:1">vs ${m.oppName}</div>
+          <div class="result-pts" style="margin-right:0.75rem">${m.myPts.toFixed(2)} – ${m.oppPts.toFixed(2)}</div>
+          <span class="result-badge ${m.win ? 'W' : 'L'}">${m.win ? 'WIN' : 'LOSS'}</span>
+        `;
+        list.appendChild(row);
+      });
+      schedCard.appendChild(list);
+    }
+
+    panel.appendChild(schedCard);
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  init().catch(err => {
+    document.getElementById('managerGrid').innerHTML = `<div class="loading-state" style="grid-column:1/-1;color:var(--accent2)">⚠️ Failed to load managers.<br><span style="font-size:0.8rem">${err.message}</span></div>`;
+  });
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>

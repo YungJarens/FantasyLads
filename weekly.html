@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weekly Scores · Fantasy HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --win: #47ff8a;
+      --loss: #ff4747;
+      --gold: #ffd700;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.05) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      letter-spacing: 4px; line-height: 1; margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    /* WEEK SELECTOR */
+    .week-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s 0.1s ease both;
+      flex-wrap: wrap;
+    }
+
+    .week-arrow {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .week-arrow:hover { border-color: var(--accent); color: var(--accent); }
+    .week-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .week-pills {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .week-pill {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .week-pill:hover { color: var(--text); border-color: var(--muted); }
+    .week-pill.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .week-pill.has-data { color: var(--text); }
+
+    /* WEEK SUMMARY STRIP */
+    .week-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      text-align: center;
+    }
+
+    .summary-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+      color: var(--accent);
+      display: block;
+    }
+
+    .summary-lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* MATCHUP CARDS */
+    .matchups-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .matchup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .matchup-card:hover { transform: translateY(-2px); }
+
+    .matchup-card.featured {
+      border-color: rgba(232,255,71,0.3);
+      background: linear-gradient(135deg, rgba(232,255,71,0.04) 0%, var(--surface) 60%);
+    }
+
+    .matchup-card.blowout {
+      border-color: rgba(255,71,71,0.25);
+    }
+
+    .card-tag {
+      padding: 0.4rem 1rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-tag.high { background: rgba(232,255,71,0.06); color: var(--accent); }
+    .card-tag.low { background: rgba(255,71,71,0.06); color: var(--accent2); }
+    .card-tag.blowout { background: rgba(255,71,71,0.06); color: var(--accent2); }
+    .card-tag.regular { color: var(--muted); }
+
+    .matchup-body {
+      padding: 1.25rem;
+    }
+
+    .team-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 0;
+    }
+
+    .team-row:first-child { border-bottom: 1px solid var(--border); }
+
+    .team-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .team-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .team-row.winner .team-avatar { border-color: var(--win); }
+    .team-row.loser .team-avatar { opacity: 0.6; }
+
+    .team-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .team-row.loser .team-name { color: var(--muted); }
+
+    .team-score {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 1px;
+    }
+
+    .team-row.winner .team-score { color: var(--win); }
+    .team-row.loser .team-score { color: var(--muted); }
+
+    .margin-bar {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .margin-val { color: var(--text); font-weight: 500; }
+
+    /* LOADING */
+    .loading-state { text-align: center; padding: 4rem; color: var(--muted); grid-column: 1/-1; }
+    .loader { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+    .loading-state p { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 1px; }
+
+    .empty-week {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 4rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .empty-week span { display: block; font-size: 2rem; margin-bottom: 1rem; }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem; letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 3rem;
+    }
+
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .matchups-grid { grid-template-columns: 1fr; }
+      .week-summary { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Standings</a></li>
+    <li><a href="weekly.html" class="active">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html">Managers</a></li>
+    <li><a href="trophies.html">Trophy Case</a></li>
+    <li><a href="totw.html">Team of the Week</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">2025 SEASON</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html">Standings</a>
+      <a href="weekly.html" class="active">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html">Managers</a>
+      <a href="trophies.html">Trophy Case</a>
+      <a href="totw.html">Team of the Week</a>
+      <a href="analytics.html">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">📅 2025 Season Results</p>
+    <h1>WEEKLY <em>SCORES</em></h1>
+    <p>Every matchup. Every score. Every moment of heartbreak.</p>
+  </div>
+
+  <div class="week-nav">
+    <button class="week-arrow" id="prevBtn" onclick="changeWeek(-1)">←</button>
+    <div class="week-pills" id="weekPills"></div>
+    <button class="week-arrow" id="nextBtn" onclick="changeWeek(1)">→</button>
+  </div>
+
+  <div class="week-summary" id="weekSummary" style="display:none">
+    <div class="summary-card"><span class="summary-val" id="sumHighScore">—</span><span class="summary-lbl">High Score</span></div>
+    <div class="summary-card"><span class="summary-val" id="sumLowScore">—</span><span class="summary-lbl">Low Score</span></div>
+    <div class="summary-card"><span class="summary-val" id="sumAvgScore">—</span><span class="summary-lbl">Avg Score</span></div>
+    <div class="summary-card"><span class="summary-val" id="sumClosest">—</span><span class="summary-lbl">Closest Margin</span></div>
+  </div>
+
+  <div class="matchups-grid" id="matchupsGrid">
+    <div class="loading-state">
+      <div class="loader"></div>
+      <p>Loading scores...</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · Data refreshes every Monday
+</footer>
+
+<script>
+  const ROOT_LEAGUE_ID = '1180381287712473088';
+  let LEAGUE_ID = ROOT_LEAGUE_ID;
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  let allRosters = {};
+  let totalWeeks = 0;
+  let currentWeek = 1;
+  let matchupCache = {};
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+
+  // Known league IDs per season
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+
+  async function findLeagueId(startId, targetSeason) {
+    const knownId = LEAGUE_IDS[targetSeason];
+    if (knownId) {
+      const league = await fetchJSON(`https://api.sleeper.app/v1/league/${knownId}`);
+      return { leagueId: knownId, league };
+    }
+    return null;
+  }
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  async function init() {
+    const found = await findLeagueId(ROOT_LEAGUE_ID, SEASON);
+    if (!found) throw new Error(`Could not find ${SEASON} league`);
+    LEAGUE_ID = found.leagueId;
+    const league = found.league;
+
+    const [rosters, users] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/users`)
+    ]);
+
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    rosters.forEach(r => {
+      const user = userMap[r.owner_id] || {};
+      allRosters[r.roster_id] = {
+        rosterId: r.roster_id,
+        displayName: user.display_name || 'Unknown',
+        teamName: user.metadata?.team_name || user.display_name || 'Unknown',
+        avatar: getAvatarUrl(user.avatar)
+      };
+    });
+
+    totalWeeks = league.settings?.leg ?? 14;
+    currentWeek = Math.max(1, totalWeeks);
+
+    buildWeekPills();
+    loadWeek(currentWeek);
+  }
+
+  function buildWeekPills() {
+    const pillsEl = document.getElementById('weekPills');
+    pillsEl.innerHTML = '';
+    for (let w = 1; w <= totalWeeks; w++) {
+      const pill = document.createElement('button');
+      pill.className = 'week-pill has-data';
+      pill.textContent = `WK ${w}`;
+      pill.dataset.week = w;
+      pill.addEventListener('click', () => loadWeek(w));
+      pillsEl.appendChild(pill);
+    }
+    updateActivePill();
+    updateArrows();
+  }
+
+  function updateActivePill() {
+    document.querySelectorAll('.week-pill').forEach(p => {
+      p.classList.toggle('active', parseInt(p.dataset.week) === currentWeek);
+    });
+  }
+
+  function updateArrows() {
+    document.getElementById('prevBtn').disabled = currentWeek <= 1;
+    document.getElementById('nextBtn').disabled = currentWeek >= totalWeeks;
+  }
+
+  function changeWeek(dir) {
+    const next = currentWeek + dir;
+    if (next < 1 || next > totalWeeks) return;
+    loadWeek(next);
+  }
+
+  async function loadWeek(week) {
+    currentWeek = week;
+    updateActivePill();
+    updateArrows();
+
+    const grid = document.getElementById('matchupsGrid');
+    grid.innerHTML = `<div class="loading-state"><div class="loader"></div><p>Loading week ${week}...</p></div>`;
+    document.getElementById('weekSummary').style.display = 'none';
+
+    try {
+      let data = matchupCache[week];
+      if (!data) {
+        data = await fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_ID}/matchups/${week}`);
+        matchupCache[week] = data;
+      }
+      renderWeek(week, data);
+    } catch (err) {
+      grid.innerHTML = `<div class="loading-state" style="color:var(--accent2)">⚠️ Could not load week ${week}.<br><span style="font-size:0.8rem">${err.message}</span></div>`;
+    }
+  }
+
+  function renderWeek(week, data) {
+    const grid = document.getElementById('matchupsGrid');
+    grid.innerHTML = '';
+
+    // Check if week has played
+    const hasScores = data.some(m => m.points && m.points > 0);
+    if (!hasScores) {
+      grid.innerHTML = `<div class="empty-week"><span>📅</span>Week ${week} hasn't been played yet. Check back soon!</div>`;
+      document.getElementById('weekSummary').style.display = 'none';
+      return;
+    }
+
+    // Group into matchups
+    const groups = {};
+    data.forEach(m => {
+      if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+      groups[m.matchup_id].push(m);
+    });
+
+    const matchups = Object.values(groups)
+      .filter(pair => pair.length === 2)
+      .map(pair => {
+        const [a, b] = pair;
+        const aWon = (a.points ?? 0) >= (b.points ?? 0);
+        return {
+          winner: aWon ? a : b,
+          loser: aWon ? b : a,
+          winnerRoster: allRosters[aWon ? a.roster_id : b.roster_id],
+          loserRoster: allRosters[aWon ? b.roster_id : a.roster_id],
+          winnerPts: aWon ? (a.points ?? 0) : (b.points ?? 0),
+          loserPts: aWon ? (b.points ?? 0) : (a.points ?? 0),
+          margin: Math.abs((a.points ?? 0) - (b.points ?? 0))
+        };
+      })
+      .sort((a, b) => b.winnerPts - a.winnerPts);
+
+    // Summary stats
+    const allScores = [...matchups.map(m => m.winnerPts), ...matchups.map(m => m.loserPts)];
+    const highScore = Math.max(...allScores);
+    const lowScore = Math.min(...allScores);
+    const avgScore = (allScores.reduce((s, v) => s + v, 0) / allScores.length).toFixed(1);
+    const closestMargin = Math.min(...matchups.map(m => m.margin)).toFixed(2);
+
+    const highScoreMatchup = matchups.find(m => m.winnerPts === highScore || m.loserPts === highScore);
+    const blowoutMatchup = matchups.reduce((max, m) => m.margin > max.margin ? m : max, matchups[0]);
+    const closestMatchup = matchups.reduce((min, m) => m.margin < min.margin ? m : min, matchups[0]);
+
+    document.getElementById('sumHighScore').textContent = highScore.toFixed(1);
+    document.getElementById('sumLowScore').textContent = lowScore.toFixed(1);
+    document.getElementById('sumAvgScore').textContent = avgScore;
+    document.getElementById('sumClosest').textContent = closestMargin;
+    document.getElementById('weekSummary').style.display = 'grid';
+
+    // Render cards
+    matchups.forEach(m => {
+      const isHighScore = m.winnerPts === highScore || m.loserPts === highScore;
+      const isBlowout = m === blowoutMatchup && m.margin > 50;
+      const isClosest = m === closestMatchup;
+
+      const card = document.createElement('div');
+      card.className = `matchup-card${isHighScore ? ' featured' : isBlowout ? ' blowout' : ''}`;
+
+      let tagClass = 'regular', tagText = `WEEK ${week} MATCHUP`;
+      if (isHighScore) { tagClass = 'high'; tagText = '⚡ HIGH SCORE GAME'; }
+      else if (isBlowout) { tagClass = 'blowout'; tagText = '💥 BLOWOUT'; }
+      else if (isClosest) { tagClass = 'high'; tagText = '🔥 CLOSEST GAME'; }
+
+      card.innerHTML = `<div class="card-tag ${tagClass}">${tagText}</div>`;
+
+      const body = document.createElement('div');
+      body.className = 'matchup-body';
+
+      function teamRow(roster, pts, isWinner) {
+        const row = document.createElement('div');
+        row.className = `team-row ${isWinner ? 'winner' : 'loser'}`;
+
+        const av = document.createElement('div');
+        av.className = 'team-avatar';
+        if (roster?.avatar) {
+          const img = document.createElement('img');
+          img.src = roster.avatar;
+          img.alt = roster.displayName;
+          img.onerror = () => { av.textContent = emojis[(roster.rosterId || 0) % emojis.length]; img.remove(); };
+          av.appendChild(img);
+        } else {
+          av.textContent = emojis[(roster?.rosterId || 0) % emojis.length];
+        }
+
+        const name = document.createElement('div');
+        name.className = 'team-name';
+        name.textContent = roster?.displayName || 'Unknown';
+
+        const score = document.createElement('div');
+        score.className = 'team-score';
+        score.textContent = pts.toFixed(2);
+
+        row.appendChild(av);
+        row.appendChild(name);
+        row.appendChild(score);
+        return row;
+      }
+
+      body.appendChild(teamRow(m.winnerRoster, m.winnerPts, true));
+      body.appendChild(teamRow(m.loserRoster, m.loserPts, false));
+
+      body.innerHTML += `
+        <div class="margin-bar">
+          <span>Margin</span>
+          <span class="margin-val">+${m.margin.toFixed(2)}</span>
+          <span>Total: ${(m.winnerPts + m.loserPts).toFixed(2)}</span>
+        </div>
+      `;
+
+      card.appendChild(body);
+      grid.appendChild(card);
+    });
+  }
+
+  init().catch(err => {
+    document.getElementById('matchupsGrid').innerHTML = `<div class="loading-state" style="color:var(--accent2)">⚠️ Failed to load scores.<br><span style="font-size:0.8rem">${err.message}</span></div>`;
+  });
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Analytics · Fantasy HQ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --accent3: #47b8ff;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --win: #47ff8a;
+      --loss: #ff4747;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.05) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    main {
+      position: relative; z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      letter-spacing: 4px; line-height: 1; margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em { color: var(--accent); font-style: normal; }
+    .hero p { color: var(--muted); font-size: 0.95rem; }
+
+    .section {
+      margin-bottom: 3rem;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .section-header {
+      display: flex; align-items: baseline; gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem; letter-spacing: 2px;
+    }
+
+    .section-title span { color: var(--accent); margin-right: 0.25rem; }
+
+    .section-sub {
+      font-size: 0.75rem; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 0.75rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      display: grid;
+    }
+
+    /* ── EXPECTED WINS TABLE ── */
+    .xw-header { grid-template-columns: 40px 1fr 80px 80px 80px 80px; }
+    .xw-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px 80px 80px;
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background 0.15s;
+    }
+    .xw-row:last-child { border-bottom: none; }
+    .xw-row:hover { background: var(--surface2); }
+
+    .rank-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem; color: var(--muted);
+    }
+
+    .manager-cell { display: flex; align-items: center; gap: 0.6rem; }
+
+    .mini-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; overflow: hidden; flex-shrink: 0;
+    }
+
+    .mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .manager-name { font-weight: 600; font-size: 0.9rem; }
+
+    .mono { font-family: 'DM Mono', monospace; font-size: 0.82rem; }
+
+    .luck-bar-wrap {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .luck-bar-bg {
+      flex: 1; height: 6px; border-radius: 3px;
+      background: var(--border);
+      overflow: hidden;
+    }
+
+    .luck-bar-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+
+    .positive { color: var(--win); }
+    .negative { color: var(--loss); }
+    .neutral { color: var(--muted); }
+
+    /* ── CONSISTENCY TABLE ── */
+    .cs-header { grid-template-columns: 40px 1fr 80px 80px 80px 90px; }
+    .cs-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 80px 80px 80px 90px;
+      padding: 0.85rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background 0.15s;
+    }
+    .cs-row:last-child { border-bottom: none; }
+    .cs-row:hover { background: var(--surface2); }
+
+    .rating-pill {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 6px;
+      letter-spacing: 1px;
+    }
+
+    .rating-elite { background: rgba(71,255,138,0.15); color: var(--win); }
+    .rating-solid { background: rgba(232,255,71,0.12); color: var(--accent); }
+    .rating-avg   { background: rgba(232,255,71,0.08); color: var(--accent); }
+    .rating-boom  { background: rgba(255,71,71,0.12);  color: var(--loss); }
+
+    /* ── HEATMAP ── */
+    .heatmap-wrap {
+      overflow-x: auto;
+      padding: 1.5rem;
+    }
+
+    .heatmap-table {
+      border-collapse: separate;
+      border-spacing: 3px;
+      min-width: 600px;
+    }
+
+    .heatmap-table th {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      padding: 0.3rem 0.5rem;
+      white-space: nowrap;
+    }
+
+    .heatmap-table th.row-label {
+      text-align: right;
+      padding-right: 0.75rem;
+      min-width: 100px;
+    }
+
+    .hmap-cell {
+      width: 52px; height: 44px;
+      border-radius: 8px;
+      text-align: center;
+      vertical-align: middle;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.95rem;
+      letter-spacing: 1px;
+      cursor: default;
+      transition: transform 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+
+    .hmap-cell:hover {
+      transform: scale(1.12);
+      z-index: 10;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .hmap-cell.self {
+      background: var(--surface2);
+      color: var(--border);
+    }
+
+    .hmap-cell.win-heavy  { background: rgba(71,255,138,0.35); color: var(--win); }
+    .hmap-cell.win-slight { background: rgba(71,255,138,0.15); color: var(--win); }
+    .hmap-cell.even       { background: rgba(232,255,71,0.12);  color: var(--accent); }
+    .hmap-cell.loss-slight{ background: rgba(255,71,71,0.15);  color: var(--loss); }
+    .hmap-cell.loss-heavy { background: rgba(255,71,71,0.35);  color: var(--loss); }
+    .hmap-cell.no-data    { background: var(--surface2); color: var(--muted); font-size: 0.7rem; }
+
+    .hmap-legend {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      flex-wrap: wrap;
+    }
+
+    .legend-swatch {
+      width: 14px; height: 14px; border-radius: 3px; display: inline-block;
+    }
+
+    /* ── LOADING ── */
+    .loading-state { text-align: center; padding: 4rem; color: var(--muted); }
+    .loader { display: inline-block; width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 1rem; }
+    .loading-state p { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 1px; }
+
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem; letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      margin-top: 1rem;
+    }
+
+    footer span { color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .xw-row, .xw-header { grid-template-columns: 36px 1fr 64px 64px; }
+      .xw-row > :nth-child(5), .xw-header > :nth-child(5),
+      .xw-row > :nth-child(6), .xw-header > :nth-child(6) { display: none; }
+      .cs-row, .cs-header { grid-template-columns: 36px 1fr 64px 64px; }
+      .cs-row > :nth-child(n+5), .cs-header > :nth-child(n+5) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Standings</a></li>
+    <li><a href="weekly.html">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html">Managers</a></li>
+    <li><a href="trophies.html">Trophy Case</a></li>
+    <li><a href="totw.html">Team of the Week</a></li>
+    <li><a href="analytics.html" class="active">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">ALL-TIME</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html">Standings</a>
+      <a href="weekly.html">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html">Managers</a>
+      <a href="trophies.html">Trophy Case</a>
+      <a href="totw.html">Team of the Week</a>
+      <a href="analytics.html" class="active">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">📊 Deep Dive · 2022–2025</p>
+    <h1>LEAGUE <em>ANALYTICS</em></h1>
+    <p>Expected wins, consistency ratings, and who owns who. The numbers don't lie.</p>
+  </div>
+
+  <div id="content">
+    <div class="loading-state">
+      <div class="loader"></div>
+      <p>Crunching 4 seasons of data...</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · All-Time 2022–2025
+</footer>
+
+<script>
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+  const SEASONS = ['2025', '2024', '2023', '2022'];
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  // { season: { rosters: [], matchups: {week: [...]} } }
+  const seasonCache = {};
+  let managers = {}; // displayName -> canonical info
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  async function loadSeason(season) {
+    const leagueId = LEAGUE_IDS[season];
+    const [league, rosters, users] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`)
+    ]);
+
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    const rosterList = rosters.map(r => {
+      const user = userMap[r.owner_id] || {};
+      return {
+        rosterId: r.roster_id,
+        displayName: user.display_name || 'Unknown',
+        avatar: getAvatarUrl(user.avatar),
+        wins: r.settings?.wins ?? 0,
+        losses: r.settings?.losses ?? 0,
+      };
+    });
+
+    const playoffStart = league.settings?.playoff_week_start ?? 15;
+    const regularSeasonWeeks = playoffStart - 1;
+    // Use leg (current week) to know how far the season actually went,
+    // then add a small buffer to catch any playoff weeks beyond leg
+    const leg = league.settings?.leg ?? 0;
+    const totalWeeks = Math.max(leg, regularSeasonWeeks + 4);
+
+    const weekFetches = [];
+    for (let w = 1; w <= totalWeeks; w++) {
+      weekFetches.push(
+        fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/matchups/${w}`)
+          .then(d => ({ week: w, data: d, isPlayoff: w >= playoffStart }))
+          .catch(() => null)
+      );
+    }
+    const results = await Promise.all(weekFetches);
+    const matchups = {};         // regular season only
+    const playoffMatchups = {};  // playoffs only
+
+    results.forEach(r => {
+      if (!r || !r.data || !r.data.some(m => (m.points ?? 0) > 0)) return;
+      if (r.isPlayoff) {
+        playoffMatchups[r.week] = r.data;
+      } else {
+        matchups[r.week] = r.data;
+      }
+    });
+
+    // Register canonical manager info (prefer 2025)
+    rosterList.forEach(r => {
+      if (!managers[r.displayName] || season === '2025') {
+        managers[r.displayName] = { displayName: r.displayName, avatar: r.avatar, rosterId: r.rosterId };
+      }
+    });
+
+    seasonCache[season] = { rosters: rosterList, matchups, playoffMatchups };
+  }
+
+  // Returns all scored matchup entries across all seasons
+  // type: 'regular' | 'playoff' | 'all'
+  function getAllGames(type = 'regular') {
+    const games = [];
+    SEASONS.forEach(season => {
+      const data = seasonCache[season];
+      if (!data) return;
+      const rosterMap = {};
+      data.rosters.forEach(r => rosterMap[r.rosterId] = r);
+
+      const sources = [];
+      if (type === 'regular' || type === 'all') sources.push({ src: data.matchups, playoff: false });
+      if (type === 'playoff' || type === 'all') sources.push({ src: data.playoffMatchups, playoff: true });
+
+      sources.forEach(({ src, playoff }) => {
+        Object.entries(src).forEach(([week, weekData]) => {
+          const groups = {};
+          weekData.forEach(m => {
+            if (!groups[m.matchup_id]) groups[m.matchup_id] = [];
+            groups[m.matchup_id].push(m);
+          });
+          Object.values(groups).forEach(pair => {
+            if (pair.length !== 2) return;
+            const [a, b] = pair;
+            const ra = rosterMap[a.roster_id], rb = rosterMap[b.roster_id];
+            if (!ra || !rb) return;
+            const ptsA = a.points ?? 0, ptsB = b.points ?? 0;
+            games.push({ season, week: parseInt(week), playoff, displayName: ra.displayName, pts: ptsA, oppName: rb.displayName, oppPts: ptsB, win: ptsA > ptsB });
+            games.push({ season, week: parseInt(week), playoff, displayName: rb.displayName, pts: ptsB, oppName: ra.displayName, oppPts: ptsA, win: ptsB > ptsA });
+          });
+        });
+      });
+    });
+    return games;
+  }
+
+  // ── EXPECTED WINS ──
+  // For each game week: rank all scores. Each manager gets 1 xWin per opponent they beat.
+  function computeExpectedWins(allGames) {
+    // Group by season+week
+    const byWeek = {};
+    allGames.forEach(g => {
+      const key = `${g.season}-${g.week}`;
+      if (!byWeek[key]) byWeek[key] = [];
+      byWeek[key].push(g);
+    });
+
+    const xWins = {}; // displayName -> { xW, actualW, games }
+    Object.values(managers).forEach(m => {
+      xWins[m.displayName] = { xW: 0, actualW: 0, games: 0 };
+    });
+
+    Object.values(byWeek).forEach(weekGames => {
+      // Unique players this week (avoid duplicates from both-side push)
+      const players = [];
+      const seen = new Set();
+      weekGames.forEach(g => {
+        if (!seen.has(g.displayName)) { seen.add(g.displayName); players.push(g); }
+      });
+      if (players.length < 2) return;
+
+      players.forEach(p => {
+        if (!xWins[p.displayName]) return;
+        // xWin = fraction of other players beaten
+        const beaten = players.filter(o => o.displayName !== p.displayName && p.pts > o.pts).length;
+        const possible = players.length - 1;
+        xWins[p.displayName].xW += beaten / possible;
+        xWins[p.displayName].actualW += p.win ? 1 : 0;
+        xWins[p.displayName].games++;
+      });
+    });
+
+    return xWins;
+  }
+
+  // ── CONSISTENCY ──
+  function computeConsistency(allGames) {
+    const byManager = {};
+    allGames.forEach(g => {
+      if (!byManager[g.displayName]) byManager[g.displayName] = [];
+      byManager[g.displayName].push(g.pts);
+    });
+
+    const result = {};
+    Object.entries(byManager).forEach(([name, scores]) => {
+      if (scores.length === 0) return;
+      const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+      const variance = scores.reduce((s, x) => s + Math.pow(x - avg, 2), 0) / scores.length;
+      const stdDev = Math.sqrt(variance);
+      const max = Math.max(...scores);
+      const min = Math.min(...scores);
+      result[name] = { avg, stdDev, max, min, games: scores.length };
+    });
+    return result;
+  }
+
+  // ── RIVALRY HEATMAP ──
+  function computeRivalry(allGames) {
+    // rivalry[nameA][nameB] = { wins, games }
+    const rivalry = {};
+    allGames.forEach(g => {
+      if (!rivalry[g.displayName]) rivalry[g.displayName] = {};
+      if (!rivalry[g.displayName][g.oppName]) rivalry[g.displayName][g.oppName] = { wins: 0, games: 0 };
+      rivalry[g.displayName][g.oppName].games++;
+      if (g.win) rivalry[g.displayName][g.oppName].wins++;
+    });
+    return rivalry;
+  }
+
+  function makeAvatar(name, size = 32) {
+    const m = managers[name];
+    const el = document.createElement('div');
+    el.className = 'mini-avatar';
+    el.style.width = size + 'px'; el.style.height = size + 'px';
+    if (m?.avatar) {
+      const img = document.createElement('img');
+      img.src = m.avatar;
+      img.onerror = () => { el.textContent = emojis[(m.rosterId || 0) % emojis.length]; img.remove(); };
+      el.appendChild(img);
+    } else {
+      el.textContent = emojis[(m?.rosterId || 0) % emojis.length];
+    }
+    return el;
+  }
+
+  function render(allGames, playoffGames) {
+    const content = document.getElementById('content');
+    content.innerHTML = '';
+
+    const xWins = computeExpectedWins(allGames);
+    const consistency = computeConsistency(allGames);
+    const allGamesIncPlayoffs = getAllGames('all');
+    const rivalry = computeRivalry(allGamesIncPlayoffs);
+    const names = Object.keys(managers).sort((a, b) => a.localeCompare(b));
+
+    // ────────────────────────────────────────────────────────────
+    // 1. EXPECTED WINS
+    // ────────────────────────────────────────────────────────────
+    const xwSection = document.createElement('div');
+    xwSection.className = 'section';
+    xwSection.style.animationDelay = '0.1s';
+    xwSection.innerHTML = `
+      <div class="section-header">
+        <h2 class="section-title"><span>#</span>Expected Wins</h2>
+        <span class="section-sub">How many wins your points deserved · All-Time</span>
+      </div>
+    `;
+
+    const xwCard = document.createElement('div');
+    xwCard.className = 'card';
+
+    const xwHeader = document.createElement('div');
+    xwHeader.className = 'card-header xw-header';
+    xwHeader.innerHTML = `<div>#</div><div>Manager</div><div>Actual W</div><div>Expected W</div><div>Luck Δ</div><div>Lucky?</div>`;
+    xwCard.appendChild(xwHeader);
+
+    // Sort by expected wins desc
+    const xwSorted = Object.entries(xWins)
+      .filter(([, v]) => v.games > 0)
+      .sort(([, a], [, b]) => b.xW - a.xW);
+
+    const maxDiff = Math.max(...xwSorted.map(([, v]) => Math.abs(v.actualW - v.xW)));
+
+    xwSorted.forEach(([name, data], i) => {
+      const diff = data.actualW - data.xW;
+      const pct = maxDiff > 0 ? Math.abs(diff) / maxDiff : 0;
+      const row = document.createElement('div');
+      row.className = 'xw-row';
+
+      const av = makeAvatar(name);
+      row.innerHTML = `<div class="rank-num">${i + 1}</div>`;
+      const cell = document.createElement('div');
+      cell.className = 'manager-cell';
+      cell.appendChild(av);
+      cell.innerHTML += `<span class="manager-name">${name}</span>`;
+      row.appendChild(cell);
+
+      const luckColor = diff > 1 ? 'var(--win)' : diff < -1 ? 'var(--loss)' : 'var(--muted)';
+      const luckLabel = diff > 2 ? '🍀 Lucky' : diff > 0.5 ? 'Slight edge' : diff < -2 ? '😤 Robbed' : diff < -0.5 ? 'Slight bad luck' : '⚖️ Even';
+      const barColor = diff >= 0 ? '#47ff8a' : '#ff4747';
+
+      row.innerHTML += `
+        <div class="mono">${data.actualW}</div>
+        <div class="mono">${data.xW.toFixed(1)}</div>
+        <div class="mono" style="color:${luckColor}">${diff >= 0 ? '+' : ''}${diff.toFixed(1)}</div>
+        <div>
+          <div class="luck-bar-wrap">
+            <div class="luck-bar-bg" style="max-width:60px">
+              <div class="luck-bar-fill" style="width:${(pct * 100).toFixed(0)}%;background:${barColor}"></div>
+            </div>
+            <span style="font-size:0.7rem;color:${luckColor};font-family:'DM Mono',monospace;white-space:nowrap">${luckLabel}</span>
+          </div>
+        </div>
+      `;
+      xwCard.appendChild(row);
+    });
+
+    // Explainer
+    const xwNote = document.createElement('div');
+    xwNote.style.cssText = 'padding:0.75rem 1.5rem;font-size:0.72rem;color:var(--muted);font-family:"DM Mono",monospace;border-top:1px solid var(--border);background:var(--surface2);';
+    xwNote.textContent = 'Regular season only. Expected Wins = fraction of opponents beaten each week, summed across all games. Δ = Actual − Expected.';
+    xwCard.appendChild(xwNote);
+    xwSection.appendChild(xwCard);
+    content.appendChild(xwSection);
+
+    // ── PLAYOFF EXPECTED WINS ──
+    if (playoffGames.length > 0) {
+      const pxwSection = document.createElement('div');
+      pxwSection.className = 'section';
+      pxwSection.style.animationDelay = '0.15s';
+      pxwSection.innerHTML = `
+        <div class="section-header">
+          <h2 class="section-title"><span>#</span>Playoff Performance</h2>
+          <span class="section-sub">Actual vs Expected wins in the postseason · All-Time</span>
+        </div>
+      `;
+
+      const pxwData = computeExpectedWins(playoffGames);
+      const pxwCard = document.createElement('div');
+      pxwCard.className = 'card';
+
+      const pxwHeader = document.createElement('div');
+      pxwHeader.className = 'card-header xw-header';
+      pxwHeader.innerHTML = '<div>#</div><div>Manager</div><div>Actual W</div><div>Expected W</div><div>Luck Δ</div><div>Clutch?</div>';
+      pxwCard.appendChild(pxwHeader);
+
+      const pxwSorted = Object.entries(pxwData)
+        .filter(([, v]) => v.games > 0)
+        .sort(([, a], [, b]) => b.xW - a.xW);
+
+      const pMaxDiff = Math.max(...pxwSorted.map(([, v]) => Math.abs(v.actualW - v.xW))) || 1;
+
+      pxwSorted.forEach(([name, data], i) => {
+        const diff = data.actualW - data.xW;
+        const pct = Math.abs(diff) / pMaxDiff;
+        const row = document.createElement('div');
+        row.className = 'xw-row';
+        const av = makeAvatar(name);
+        row.innerHTML = '<div class="rank-num">' + (i + 1) + '</div>';
+        const cell = document.createElement('div');
+        cell.className = 'manager-cell';
+        cell.appendChild(av);
+        cell.innerHTML += '<span class="manager-name">' + name + '</span>';
+        row.appendChild(cell);
+
+        const luckColor = diff > 0.5 ? 'var(--win)' : diff < -0.5 ? 'var(--loss)' : 'var(--muted)';
+        const clutchLabel = diff > 1 ? '🔥 Clutch' : diff > 0 ? 'Above avg' : diff < -1 ? '🥶 Choked' : diff < 0 ? 'Below avg' : '⚖️ Even';
+        const barColor = diff >= 0 ? '#47ff8a' : '#ff4747';
+
+        row.innerHTML += '<div class="mono">' + data.actualW + '</div>' +
+          '<div class="mono">' + data.xW.toFixed(1) + '</div>' +
+          '<div class="mono" style="color:' + luckColor + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(1) + '</div>' +
+          '<div><div class="luck-bar-wrap"><div class="luck-bar-bg" style="max-width:60px"><div class="luck-bar-fill" style="width:' + (pct * 100).toFixed(0) + '%;background:' + barColor + '"></div></div><span style="font-size:0.7rem;color:' + luckColor + ';font-family:DM Mono,monospace;white-space:nowrap">' + clutchLabel + '</span></div></div>';
+        pxwCard.appendChild(row);
+      });
+
+      const pxwNote = document.createElement('div');
+      pxwNote.style.cssText = 'padding:0.75rem 1.5rem;font-size:0.72rem;color:var(--muted);font-family:"DM Mono",monospace;border-top:1px solid var(--border);background:var(--surface2);';
+      pxwNote.textContent = 'Playoff weeks only. Note: playoff pools are smaller (4–6 teams), so expected wins are calculated within the playoff bracket each week.';
+      pxwCard.appendChild(pxwNote);
+      pxwSection.appendChild(pxwCard);
+      content.appendChild(pxwSection);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // 2. CONSISTENCY RATING
+    // ────────────────────────────────────────────────────────────
+    const csSection = document.createElement('div');
+    csSection.className = 'section';
+    csSection.style.animationDelay = '0.2s';
+    csSection.innerHTML = `
+      <div class="section-header">
+        <h2 class="section-title"><span>#</span>Consistency Rating</h2>
+        <span class="section-sub">Boom/bust vs steady scorer · All-Time</span>
+      </div>
+    `;
+
+    const csCard = document.createElement('div');
+    csCard.className = 'card';
+
+    const csHeader = document.createElement('div');
+    csHeader.className = 'card-header cs-header';
+    csHeader.innerHTML = `<div>#</div><div>Manager</div><div>Avg Pts</div><div>Std Dev</div><div>Range</div><div>Style</div>`;
+    csCard.appendChild(csHeader);
+
+    // Sort by std dev ascending (most consistent first)
+    const csSorted = Object.entries(consistency)
+      .filter(([name]) => managers[name])
+      .sort(([, a], [, b]) => a.stdDev - b.stdDev);
+
+    csSorted.forEach(([name, data], i) => {
+      const row = document.createElement('div');
+      row.className = 'cs-row';
+
+      // Rating tiers based on stdDev
+      let ratingClass, ratingLabel;
+      if (data.stdDev < 15) { ratingClass = 'rating-elite'; ratingLabel = 'CONSISTENT'; }
+      else if (data.stdDev < 22) { ratingClass = 'rating-solid'; ratingLabel = 'SOLID'; }
+      else if (data.stdDev < 30) { ratingClass = 'rating-avg'; ratingLabel = 'AVERAGE'; }
+      else { ratingClass = 'rating-boom'; ratingLabel = 'BOOM/BUST'; }
+
+      const av = makeAvatar(name);
+      row.innerHTML = `<div class="rank-num">${i + 1}</div>`;
+      const cell = document.createElement('div');
+      cell.className = 'manager-cell';
+      cell.appendChild(av);
+      cell.innerHTML += `<span class="manager-name">${name}</span>`;
+      row.appendChild(cell);
+
+      row.innerHTML += `
+        <div class="mono">${data.avg.toFixed(1)}</div>
+        <div class="mono" style="color:${data.stdDev < 20 ? 'var(--win)' : data.stdDev > 28 ? 'var(--loss)' : 'var(--muted)'}">${data.stdDev.toFixed(1)}</div>
+        <div class="mono" style="font-size:0.75rem">${data.min.toFixed(0)}–${data.max.toFixed(0)}</div>
+        <div><span class="rating-pill ${ratingClass}">${ratingLabel}</span></div>
+      `;
+      csCard.appendChild(row);
+    });
+
+    const csNote = document.createElement('div');
+    csNote.style.cssText = 'padding:0.75rem 1.5rem;font-size:0.72rem;color:var(--muted);font-family:"DM Mono",monospace;border-top:1px solid var(--border);background:var(--surface2);';
+    csNote.textContent = 'Regular season only. Std Dev = standard deviation of weekly scores. Lower = more consistent. Consistent < 15 · Solid < 22 · Average < 30 · Boom/Bust ≥ 30.';
+    csCard.appendChild(csNote);
+    csSection.appendChild(csCard);
+    content.appendChild(csSection);
+
+    // ── PLAYOFF CONSISTENCY ──
+    if (playoffGames.length > 0) {
+      const pcsSection = document.createElement('div');
+      pcsSection.className = 'section';
+      pcsSection.style.animationDelay = '0.25s';
+      pcsSection.innerHTML = `
+        <div class="section-header">
+          <h2 class="section-title"><span>#</span>Playoff Scoring</h2>
+          <span class="section-sub">How managers score when it matters most · All-Time</span>
+        </div>
+      `;
+
+      const pcsData = computeConsistency(playoffGames);
+      const regData = computeConsistency(allGames);
+
+      const pcsCard = document.createElement('div');
+      pcsCard.className = 'card';
+      const pcsHeader = document.createElement('div');
+      pcsHeader.className = 'card-header cs-header';
+      pcsHeader.innerHTML = '<div>#</div><div>Manager</div><div>Playoff Avg</div><div>Reg Avg</div><div>Δ vs Reg</div><div>Trend</div>';
+      pcsCard.appendChild(pcsHeader);
+
+      const pcsSorted = Object.entries(pcsData)
+        .filter(([name]) => managers[name] && pcsData[name].games > 0)
+        .sort(([, a], [, b]) => b.avg - a.avg);
+
+      pcsSorted.forEach(([name, data], i) => {
+        const reg = regData[name];
+        const diff = reg ? data.avg - reg.avg : 0;
+        const row = document.createElement('div');
+        row.className = 'cs-row';
+        const av = makeAvatar(name);
+        row.innerHTML = '<div class="rank-num">' + (i + 1) + '</div>';
+        const cell = document.createElement('div');
+        cell.className = 'manager-cell';
+        cell.appendChild(av);
+        cell.innerHTML += '<span class="manager-name">' + name + '</span>';
+        row.appendChild(cell);
+
+        const diffColor = diff > 5 ? 'var(--win)' : diff < -5 ? 'var(--loss)' : 'var(--muted)';
+        const trend = diff > 10 ? '🔥 Steps Up' : diff > 3 ? '📈 Better' : diff < -10 ? '💀 Falls Off' : diff < -3 ? '📉 Worse' : '➡️ Same';
+        const trendCls = diff > 3 ? 'rating-elite' : diff < -3 ? 'rating-boom' : 'rating-avg';
+
+        row.innerHTML += '<div class="mono">' + data.avg.toFixed(1) + '</div>' +
+          '<div class="mono">' + (reg ? reg.avg.toFixed(1) : '—') + '</div>' +
+          '<div class="mono" style="color:' + diffColor + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(1) + '</div>' +
+          '<div><span class="rating-pill ' + trendCls + '">' + trend + '</span></div>';
+        pcsCard.appendChild(row);
+      });
+
+      const pcsNote = document.createElement('div');
+      pcsNote.style.cssText = 'padding:0.75rem 1.5rem;font-size:0.72rem;color:var(--muted);font-family:"DM Mono",monospace;border-top:1px solid var(--border);background:var(--surface2);';
+      pcsNote.textContent = 'Δ vs Reg = difference between playoff avg and regular season avg. Positive = scores more in playoffs.';
+      pcsCard.appendChild(pcsNote);
+      pcsSection.appendChild(pcsCard);
+      content.appendChild(pcsSection);
+    }
+
+    // ────────────────────────────────────────────────────────────
+    // 3. RIVALRY HEATMAP
+    // ────────────────────────────────────────────────────────────
+    const hmSection = document.createElement('div');
+    hmSection.className = 'section';
+    hmSection.style.animationDelay = '0.3s';
+    hmSection.innerHTML = `
+      <div class="section-header">
+        <h2 class="section-title"><span>#</span>Rivalry Heatmap</h2>
+        <span class="section-sub">All-time record of every manager vs every other · hover for details</span>
+      </div>
+    `;
+
+    const hmCard = document.createElement('div');
+    hmCard.className = 'card';
+
+    const hmWrap = document.createElement('div');
+    hmWrap.className = 'heatmap-wrap';
+
+    const table = document.createElement('table');
+    table.className = 'heatmap-table';
+
+    // Header row
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const cornerTh = document.createElement('th');
+    cornerTh.className = 'row-label';
+    cornerTh.textContent = 'vs →';
+    headerRow.appendChild(cornerTh);
+
+    names.forEach(name => {
+      const th = document.createElement('th');
+      // Abbreviate to initials for column headers
+      th.textContent = name.slice(0, 6);
+      th.title = name;
+      th.style.textAlign = 'center';
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Body rows
+    const tbody = document.createElement('tbody');
+    names.forEach(rowName => {
+      const tr = document.createElement('tr');
+      const rowTh = document.createElement('th');
+      rowTh.className = 'row-label';
+      rowTh.textContent = rowName.slice(0, 10);
+      rowTh.title = rowName;
+      tr.appendChild(rowTh);
+
+      names.forEach(colName => {
+        const td = document.createElement('td');
+
+        if (rowName === colName) {
+          td.className = 'hmap-cell self';
+          td.textContent = '—';
+        } else {
+          const record = rivalry[rowName]?.[colName];
+          if (!record || record.games === 0) {
+            td.className = 'hmap-cell no-data';
+            td.textContent = '—';
+          } else {
+            const { wins, games } = record;
+            const losses = games - wins;
+            const winPct = wins / games;
+
+            let cls;
+            if (winPct >= 0.7) cls = 'win-heavy';
+            else if (winPct > 0.5) cls = 'win-slight';
+            else if (winPct === 0.5) cls = 'even';
+            else if (winPct >= 0.3) cls = 'loss-slight';
+            else cls = 'loss-heavy';
+
+            td.className = `hmap-cell ${cls}`;
+            td.textContent = `${wins}-${losses}`;
+            td.title = `${rowName} vs ${colName}: ${wins}W–${losses}L (${(winPct * 100).toFixed(0)}%)`;
+          }
+        }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    hmWrap.appendChild(table);
+    hmCard.appendChild(hmWrap);
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'hmap-legend';
+    legend.innerHTML = `
+      <span>Row vs column (reg season + playoffs) →</span>
+      <span><span class="legend-swatch" style="background:rgba(71,255,138,0.35)"></span> Dominant (70%+)</span>
+      <span><span class="legend-swatch" style="background:rgba(71,255,138,0.15)"></span> Winning (51–69%)</span>
+      <span><span class="legend-swatch" style="background:rgba(232,255,71,0.12)"></span> Even (50%)</span>
+      <span><span class="legend-swatch" style="background:rgba(255,71,71,0.15)"></span> Losing (31–49%)</span>
+      <span><span class="legend-swatch" style="background:rgba(255,71,71,0.35)"></span> Getting owned (30%-)</span>
+    `;
+    hmCard.appendChild(legend);
+    hmSection.appendChild(hmCard);
+    content.appendChild(hmSection);
+  }
+
+  async function init() {
+    try {
+      await Promise.all(SEASONS.map(s => loadSeason(s)));
+      const regularGames = getAllGames('regular');
+      const playoffGames = getAllGames('playoff');
+      render(regularGames, playoffGames);
+    } catch (err) {
+      console.error(err);
+      document.getElementById('content').innerHTML = `
+        <div class="loading-state" style="color:var(--accent2)">
+          ⚠️ Failed to load analytics data.<br>
+          <span style="font-size:0.8rem">${err.message}</span>
+        </div>`;
+    }
+  }
+
+  init();
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fantasy HQ 🏈</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #090c10;
+      --surface: #0f1318;
+      --surface2: #161c23;
+      --border: #1e2730;
+      --accent: #e8ff47;
+      --accent2: #ff4747;
+      --accent3: #47b8ff;
+      --text: #f0f4f8;
+      --muted: #5a6a7a;
+      --gold: #ffd700;
+      --silver: #c0c0c0;
+      --bronze: #cd7f32;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(232,255,71,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(232,255,71,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glow orb */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(232,255,71,0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,12,16,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem; letter-spacing: 2px;
+      color: var(--accent); text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo span { color: var(--text); }
+
+    .nav-links {
+      display: flex;
+      gap: 0;
+      list-style: none;
+      flex: 1;
+      justify-content: center;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      padding: 0 0.6rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    .nav-badge {
+      background: var(--accent);
+      color: var(--bg);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+
+    /* Hamburger — shown only when nav overflows */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      background: none; border: none;
+    }
+
+    .nav-hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--text); border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-drawer {
+      display: none;
+      position: fixed;
+      top: 56px; left: 0; right: 0;
+      background: rgba(9,12,16,0.98);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 1.5rem;
+      flex-direction: column;
+      gap: 0;
+      z-index: 99;
+    }
+
+    .nav-drawer.open { display: flex; }
+
+    .nav-drawer a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover, .nav-drawer a.active { color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .nav-hamburger { display: flex; }
+    }
+
+    /* MAIN */
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 6rem);
+      letter-spacing: 4px;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 em {
+      color: var(--accent);
+      font-style: normal;
+    }
+
+    .hero p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 300;
+    }
+
+    /* STAT PILLS */
+    .stat-strip {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .stat-pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .stat-pill .val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--accent);
+      letter-spacing: 1px;
+      display: block;
+    }
+
+    .stat-pill .lbl {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    /* SECTION HEADER */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--text);
+    }
+
+    .section-title span {
+      color: var(--accent);
+      margin-right: 0.4rem;
+    }
+
+    .week-badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* LEADERBOARD TABLE */
+    .leaderboard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: fadeUp 0.6s 0.2s ease both;
+      margin-bottom: 3rem;
+    }
+
+    .lb-header {
+      display: grid;
+      grid-template-columns: 48px 1fr 80px 80px 100px 100px;
+      padding: 0.75rem 1.5rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .lb-row {
+      display: grid;
+      grid-template-columns: 48px 1fr 80px 80px 100px 100px;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      align-items: center;
+      transition: background 0.2s;
+      cursor: pointer;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row:hover { background: var(--surface2); }
+
+    .lb-row.rank-1 { border-left: 3px solid var(--gold); }
+    .lb-row.rank-2 { border-left: 3px solid var(--silver); }
+    .lb-row.rank-3 { border-left: 3px solid var(--bronze); }
+
+    .rank-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      color: var(--muted);
+    }
+
+    .rank-1 .rank-num { color: var(--gold); }
+    .rank-2 .rank-num { color: var(--silver); }
+    .rank-3 .rank-num { color: var(--bronze); }
+
+    .manager-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .manager-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .team-name {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .record {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .win-pct {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .pts {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+    }
+
+    .pts-against {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .streak {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .streak.W { background: rgba(71,255,71,0.15); color: #47ff47; }
+    .streak.L { background: rgba(255,71,71,0.15); color: var(--accent2); }
+
+    /* LOADING */
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted);
+    }
+
+    .loader {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    .loading-state p {
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ERROR */
+    .error-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--accent2);
+    }
+
+    .error-state p { font-size: 0.9rem; margin-top: 0.5rem; color: var(--muted); }
+
+    /* TOP 3 PODIUM CARDS */
+    .podium {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 3rem;
+      animation: fadeUp 0.6s 0.15s ease both;
+    }
+
+    .podium-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+
+    .podium-card:hover { transform: translateY(-3px); }
+
+    .podium-card.p1 {
+      border-color: rgba(255,215,0,0.3);
+      background: linear-gradient(135deg, rgba(255,215,0,0.05) 0%, var(--surface) 60%);
+    }
+
+    .podium-card.p2 {
+      border-color: rgba(192,192,192,0.3);
+    }
+
+    .podium-card.p3 {
+      border-color: rgba(205,127,50,0.3);
+    }
+
+    .podium-rank {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .p1 .podium-rank { color: var(--gold); }
+    .p2 .podium-rank { color: var(--silver); }
+    .p3 .podium-rank { color: var(--bronze); }
+
+    .podium-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 3px solid var(--border);
+      margin: 0 auto 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      overflow: hidden;
+    }
+
+    .p1 .podium-avatar { border-color: var(--gold); }
+    .p2 .podium-avatar { border-color: var(--silver); }
+    .p3 .podium-avatar { border-color: var(--bronze); }
+
+    .podium-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .podium-name {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .podium-team {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .podium-record {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+    }
+
+    .podium-pts {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    footer span { color: var(--accent); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      .lb-header, .lb-row {
+        grid-template-columns: 40px 1fr 70px 70px;
+      }
+      .lb-header .h-pts-against,
+      .lb-header .h-streak,
+      .lb-row .pts-against,
+      .lb-row .streak-cell { display: none; }
+      .podium { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">FANTASY<span>LADS</span>HQ</a>
+  <ul class="nav-links">
+    <li><a href="index.html" class="active">Standings</a></li>
+    <li><a href="weekly.html">Weekly</a></li>
+    <li><a href="h2h.html">Head-to-Head</a></li>
+    <li><a href="profiles.html">Managers</a></li>
+    <li><a href="trophies.html">Trophy Case</a></li>
+    <li><a href="totw.html">Team of the Week</a></li>
+    <li><a href="analytics.html">Analytics</a></li>
+  </ul>
+  <span class="nav-badge">ALL-TIME</span>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="index.html" class="active">Standings</a>
+      <a href="weekly.html">Weekly</a>
+      <a href="h2h.html">Head-to-Head</a>
+      <a href="profiles.html">Managers</a>
+      <a href="trophies.html">Trophy Case</a>
+      <a href="totw.html">Team of the Week</a>
+      <a href="analytics.html">Analytics</a>
+</div>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">⚡ All-Time Standings · 2022–2025</p>
+    <h1>THE ALL-TIME<br><em>LEADERBOARD</em></h1>
+    <p>4 seasons. Every win. Every loss. The definitive ranking.</p>
+  </div>
+
+  <div class="stat-strip" id="statStrip">
+    <div class="stat-pill"><span class="val" id="statWeeks">—</span><span class="lbl">Seasons</span></div>
+    <div class="stat-pill"><span class="val" id="statHighScore">—</span><span class="lbl">Most Points For</span></div>
+    <div class="stat-pill"><span class="val" id="statTotalPts">—</span><span class="lbl">Total Points</span></div>
+    <div class="stat-pill"><span class="val" id="statManagers">10</span><span class="lbl">Managers</span></div>
+  </div>
+
+  <!-- PODIUM -->
+  <div class="section-header">
+    <h2 class="section-title"><span>#</span>All-Time Top 3</h2>
+  </div>
+  <div class="podium" id="podium">
+    <div class="loading-state" style="grid-column:1/-1">
+      <div class="loader"></div>
+      <p>Fetching league data...</p>
+    </div>
+  </div>
+
+  <!-- FULL STANDINGS -->
+  <div class="section-header">
+    <h2 class="section-title"><span>#</span>All-Time Standings</h2>
+    <span class="week-badge" id="weekLabel">2025 SEASON</span>
+  </div>
+
+  <div class="leaderboard">
+    <div class="lb-header">
+      <div>#</div>
+      <div>Manager</div>
+      <div>Record</div>
+      <div>Win %</div>
+      <div>PF</div>
+      <div class="h-pts-against">PA</div>
+    </div>
+    <div id="leaderboardBody">
+      <div class="loading-state">
+        <div class="loader"></div>
+        <p>Connecting to Sleeper API...</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  Powered by <span>Sleeper API</span> · Fantasy HQ · Data refreshes every Monday
+</footer>
+
+<script>
+  const LEAGUE_IDS = {
+    '2025': '1180381287712473088',
+    '2024': '1056403416269791232',
+    '2023': '987634808417251328',
+    '2022': '842257999883014144'
+  };
+  const SEASONS = ['2025', '2024', '2023', '2022'];
+  const emojis = ['🏈','🔥','💀','👑','⚡','🎯','💪','🦅','🐉','🏆'];
+
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function getAvatarUrl(id) {
+    return id ? `https://sleepercdn.com/avatars/thumbs/${id}` : null;
+  }
+
+  function winPct(wins, losses, ties = 0) {
+    const total = wins + losses + ties;
+    if (total === 0) return '—';
+    return ((wins + ties * 0.5) / total).toFixed(3).replace(/^0/, '');
+  }
+
+  async function loadSeason(season) {
+    const leagueId = LEAGUE_IDS[season];
+    const [rosters, users, bracket] = await Promise.all([
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/rosters`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/users`),
+      fetchJSON(`https://api.sleeper.app/v1/league/${leagueId}/winners_bracket`).catch(() => [])
+    ]);
+    const userMap = {};
+    users.forEach(u => userMap[u.user_id] = u);
+
+    // Find champion from bracket (p===1 is championship game)
+    const rosterToName = {};
+    rosters.forEach(r => {
+      const user = userMap[r.owner_id] || {};
+      rosterToName[r.roster_id] = user.display_name || 'Unknown';
+    });
+    let championName = null;
+    const champGame = bracket.find(b => b.p === 1);
+    if (champGame && champGame.w) {
+      championName = rosterToName[champGame.w] || null;
+    } else {
+      // Fallback: highest round winner
+      const maxRound = bracket.length ? Math.max(...bracket.map(b => b.r)) : 0;
+      const final = bracket.filter(b => b.r === maxRound).sort((a,b) => a.m - b.m)[0];
+      if (final && final.w) championName = rosterToName[final.w] || null;
+    }
+
+    return {
+      rosters: rosters.map(r => {
+        const user = userMap[r.owner_id] || {};
+        return {
+          rosterId: r.roster_id,
+          displayName: user.display_name || 'Unknown',
+          teamName: user.metadata?.team_name || user.display_name || 'Unknown',
+          avatar: getAvatarUrl(user.avatar),
+          wins: r.settings?.wins ?? 0,
+          losses: r.settings?.losses ?? 0,
+          ties: r.settings?.ties ?? 0,
+          pf: parseFloat(((r.settings?.fpts ?? 0) + (r.settings?.fpts_decimal ?? 0) / 100).toFixed(2)),
+          pa: parseFloat(((r.settings?.fpts_against ?? 0) + (r.settings?.fpts_against_decimal ?? 0) / 100).toFixed(2)),
+        };
+      }),
+      championName
+    };
+  }
+
+  async function loadLeague() {
+    try {
+      // Load all seasons and current season league info in parallel
+      const [seasonResults, currentLeague] = await Promise.all([
+        Promise.all(SEASONS.map(s => loadSeason(s))),
+        fetchJSON(`https://api.sleeper.app/v1/league/${LEAGUE_IDS['2025']}`)
+      ]);
+
+      // Aggregate all-time stats by display name
+      const aggregate = {}; // displayName -> stats
+
+      SEASONS.forEach((season, i) => {
+        const { rosters, championName } = seasonResults[i];
+        rosters.forEach(r => {
+          const key = r.displayName;
+          if (!aggregate[key]) {
+            aggregate[key] = {
+              displayName: r.displayName,
+              teamName: r.teamName,
+              avatar: r.avatar,
+              rosterId: r.rosterId,
+              wins: 0, losses: 0, ties: 0,
+              pf: 0, pa: 0,
+              seasons: 0,
+              championships: [] // list of years won
+            };
+          }
+          // Always use most recent season's avatar/teamName
+          if (season === '2025') {
+            aggregate[key].avatar = r.avatar;
+            aggregate[key].teamName = r.teamName;
+            aggregate[key].rosterId = r.rosterId;
+          }
+          aggregate[key].wins += r.wins;
+          aggregate[key].losses += r.losses;
+          aggregate[key].ties += r.ties;
+          aggregate[key].pf += r.pf;
+          aggregate[key].pa += r.pa;
+          aggregate[key].seasons++;
+          if (championName && r.displayName === championName) {
+            aggregate[key].championships.push(season);
+          }
+        });
+      });
+
+      const standings = Object.values(aggregate).sort((a, b) => {
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        return b.pf - a.pf;
+      });
+
+      renderStats(standings, currentLeague);
+      renderPodium(standings);
+      renderLeaderboard(standings);
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('podium').innerHTML = `<div class="error-state" style="grid-column:1/-1">⚠️ Could not load league data<p>${err.message}</p></div>`;
+      document.getElementById('leaderboardBody').innerHTML = `<div class="error-state">⚠️ Failed to connect to Sleeper API<p>Check your connection and try again.</p></div>`;
+    }
+  }
+
+  function renderStats(standings, league) {
+    const totalPts = standings.reduce((s, m) => s + m.pf, 0);
+    const highScore = Math.max(...standings.map(m => m.pf));
+    const totalGames = standings.reduce((s, m) => s + m.wins + m.losses + m.ties, 0) / 2;
+
+    document.getElementById('statWeeks').textContent = SEASONS.length;
+    document.getElementById('statHighScore').textContent = highScore.toFixed(0);
+    document.getElementById('statTotalPts').textContent = totalPts.toFixed(0);
+    document.getElementById('weekLabel').textContent = `ALL-TIME · 2022–2025`;
+  }
+
+  function avatarEl(manager, size = 36, cls = 'avatar') {
+    const el = document.createElement('div');
+    el.className = cls;
+    if (size !== 36) { el.style.width = size + 'px'; el.style.height = size + 'px'; }
+    if (manager.avatar) {
+      const img = document.createElement('img');
+      img.src = manager.avatar;
+      img.alt = manager.displayName;
+      img.onerror = () => { el.textContent = emojis[manager.rosterId % emojis.length]; img.remove(); };
+      el.appendChild(img);
+    } else {
+      el.textContent = emojis[manager.rosterId % emojis.length];
+    }
+    return el;
+  }
+
+  function renderPodium(standings) {
+    const podium = document.getElementById('podium');
+    podium.innerHTML = '';
+    const top3 = standings.slice(0, 3);
+    const classes = ['p1', 'p2', 'p3'];
+    const labels = ['1ST', '2ND', '3RD'];
+
+    top3.forEach((m, i) => {
+      const card = document.createElement('div');
+      card.className = `podium-card ${classes[i]}`;
+      card.style.animationDelay = `${i * 0.08}s`;
+      const av = avatarEl(m, 56, 'podium-avatar');
+      card.innerHTML = `<div class="podium-rank">${labels[i]}</div>`;
+      card.appendChild(av);
+      card.innerHTML += `
+        <div class="podium-name">${m.displayName}</div>
+        <div class="podium-team">${m.championships && m.championships.length ? '🏆'.repeat(m.championships.length) + ' ' : ''}${m.teamName !== m.displayName ? m.teamName : '&nbsp;'}</div>
+        <div class="podium-record">${m.wins}-${m.losses}${m.ties ? `-${m.ties}` : ''}</div>
+        <div class="podium-pts">${m.pf.toFixed(0)} pts all-time</div>
+      `;
+      podium.appendChild(card);
+    });
+  }
+
+  function renderLeaderboard(standings) {
+    const body = document.getElementById('leaderboardBody');
+    body.innerHTML = '';
+
+    standings.forEach((m, i) => {
+      const rank = i + 1;
+      const row = document.createElement('div');
+      row.className = `lb-row rank-${rank <= 3 ? rank : ''}`;
+      row.style.animationDelay = `${i * 0.05}s`;
+
+      const info = document.createElement('div');
+      info.className = 'manager-info';
+      const av = avatarEl(m);
+      const txt = document.createElement('div');
+      const trophies = m.championships && m.championships.length > 0
+        ? ` <span title="Champion: ${m.championships.join(', ')}" style="font-size:0.9rem">${'🏆'.repeat(m.championships.length)}</span>`
+        : '';
+      txt.innerHTML = `<div class="manager-name">${m.displayName}${trophies}</div><div class="team-name">${m.seasons} season${m.seasons !== 1 ? 's' : ''}</div>`;
+      info.appendChild(av);
+      info.appendChild(txt);
+
+      row.innerHTML = `<div class="rank-num">${rank}</div>`;
+      row.appendChild(info);
+      row.innerHTML += `
+        <div class="record">${m.wins}-${m.losses}${m.ties ? `-${m.ties}` : ''}</div>
+        <div class="win-pct">${winPct(m.wins, m.losses, m.ties)}</div>
+        <div class="pts">${m.pf.toFixed(0)}</div>
+        <div class="pts-against h-pts-against">${m.pa.toFixed(0)}</div>
+      `;
+      body.appendChild(row);
+    });
+  }
+
+  loadLeague();
+</script>
+<script>
+  // Hamburger menu
+  const hamburger = document.getElementById('navHamburger');
+  const drawer = document.getElementById('navDrawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      drawer.classList.toggle('open');
+    });
+    drawer.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      drawer.classList.remove('open');
+    }));
+  }
+</script>
+</body>
+</html>
